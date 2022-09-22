@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+  
+  backend:
+    user: "1000:1000"
+    hostname: backend
+    container_name: backend
+    image: made22t4/backend:1.0
+    ports:
+      - "8000:8000"
+    volumes:
+      - ${PWD}/backend:/usr/src/app
+    entrypoint: python3 main.py
+    command: ""
+
+  frontend:
+    user: "1000:1000"
+    hostname: frontend
+    container_name: frontend
+    image: made22t4/frontend:1.0
+    ports:
+      - "3000:3000"
+    volumes:
+      - ${PWD}/frontend/site:/usr/src/app
+    entrypoint: sh -c "yarn install && yarn dev"
+    environment:
+      - HOST=0.0.0.0
+    command: ""
+
+  database:
+    hostname: database
+    container_name: database
+    image: mongo:6
+    expose:
+      - "27017:27017"
