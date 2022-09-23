@@ -5,7 +5,12 @@ import os
 import datetime
 from mongoengine import *
 
-connect(name='test', host=os.environ.get('MONGODB_URI', None) or 'database')
+try:
+    host = os.environ['MONGODB_URI']
+    host = host.rsplit('/', maxsplit=1)[0]+'/user'
+except KeyError:
+    host = 'database'
+connect(name='test', host=host)
 
 
 class BlogPost(Document):
