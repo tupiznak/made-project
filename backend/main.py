@@ -1,5 +1,7 @@
 import json
 
+from fastapi.middleware.cors import CORSMiddleware
+
 from fastapi import FastAPI
 import os
 import datetime
@@ -30,6 +32,20 @@ class LinkPost(BlogPost):
 
 app = FastAPI()
 
+origins = [
+    "http://frontend:3000",
+    "http://127.0.0.1:3000",
+    "https://made22t4.vercel.app",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 @app.get("/", tags=["Root"])
 async def read_root():
@@ -56,5 +72,5 @@ async def db_read():
         contents.append(post.content)
 
     return {
-        "message": json.dumps(contents)
+        "message": len(contents)
     }
