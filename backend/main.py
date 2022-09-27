@@ -1,10 +1,8 @@
-import json
-
-from fastapi.middleware.cors import CORSMiddleware
+import datetime
+import os
 
 from fastapi import FastAPI
-import os
-import datetime
+from fastapi.middleware.cors import CORSMiddleware
 from mongoengine import *
 
 try:
