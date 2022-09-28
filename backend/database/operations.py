@@ -72,6 +72,17 @@ class PaperOperations:
         return papers
 
     @staticmethod
+    def filter(paper_filter: dict, exclude_paper: dict = None, chunk_size: int = 10) -> List[Paper]:
+        if exclude_paper is None:
+            exclude_paper = {}
+        exclude_paper = dict((f'{k}__ne', v) for k, v in exclude_paper.items())
+        cmd = db.Paper.objects.filter(**(paper_filter | exclude_paper)) \
+            .aggregate([{'$sample': {'size': chunk_size}}])
+        db_objects = [c for c in cmd]
+        papers = [PaperOperations.to_model(p) for p in db_objects]
+        return papers
+
+    @staticmethod
     def delete(_id: str):
         paper = PaperOperations.get_by_id(_id)
         citations_db['paper'].delete_one(dict(_id=paper.id))

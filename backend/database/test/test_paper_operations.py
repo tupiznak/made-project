@@ -10,6 +10,15 @@ def db():
     PaperOperations.flush()
 
 
+@pytest.fixture
+def some_data(db):
+    p1 = PaperOperations.create(Paper(_id='q', title='gtrgdtg', abstract='grtgrt'))
+    p2 = PaperOperations.create(Paper(_id='q2', title='gtrgdtg', abstract='grtgrt', year=2002))
+    p3 = PaperOperations.create(Paper(_id='q22', title='gtrgdtg', abstract='grtgrt'))
+    p4 = PaperOperations.create(Paper(_id='222', title='gg', abstract='grtgrt', year=2002))
+    return p1, p2, p3, p4
+
+
 def test_crud(db):
     paper = Paper(_id='q', title='gtrgdtg', abstract='grtgrt')
     PaperOperations.model_to_db(PaperOperations.to_model(PaperOperations.model_to_db(paper)))
@@ -34,13 +43,18 @@ def test_crud(db):
         PaperOperations.delete(paper.id)
 
 
-def test_chunk(db):
-    p1 = PaperOperations.create(Paper(_id='q', title='gtrgdtg', abstract='grtgrt'))
-    p2 = PaperOperations.create(Paper(_id='q2', title='gtrgdtg', abstract='grtgrt'))
-    p3 = PaperOperations.create(Paper(_id='q22', title='gtrgdtg', abstract='grtgrt'))
-    p4 = PaperOperations.create(Paper(_id='222', title='gtrgdtg', abstract='grtgrt'))
+def test_chunk(some_data):
+    p1, p2, p3, p4 = some_data
     assert len(PaperOperations.get_chunk(chunk_size=2)) == 2
     assert len(PaperOperations.get_chunk(chunk_size=20)) == 4
     assert PaperOperations.get_chunk(id_list=['q22', 'q']) == [p3, p1]
     with pytest.raises(mongoengine.errors.DoesNotExist):
         assert PaperOperations.get_chunk(id_list=['q22', 'qer']) == [p3, p1]
+
+
+def test_filter(some_data):
+    assert PaperOperations.filter(dict(title='gg')) == [some_data[3]]
+    assert set(PaperOperations.filter(dict(year=2002))) == {some_data[1], some_data[3]}
+    assert set(PaperOperations.filter(dict(year=2002))) == {some_data[1], some_data[3]}
+    assert PaperOperations.filter(dict(year=2002, title='gg')) == [some_data[3]]
+    assert PaperOperations.filter(dict(year=2002), exclude_paper=dict(title='gg')) == [some_data[1]]
