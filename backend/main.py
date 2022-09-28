@@ -1,36 +1,25 @@
-import json
-
-from fastapi.middleware.cors import CORSMiddleware
-
+import mongoengine.errors
 from fastapi import FastAPI
-import os
-import datetime
-from mongoengine import *
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
-try:
-    host = os.environ['MONGODB_URI']
-    host = host.rsplit('/', maxsplit=1)[0]+'/user'
-except KeyError:
-    host = 'database'
-connect(name='test', host=host)
+from app.routes.database import database_router
+from database.connection import connect
 
-
-class BlogPost(Document):
-    title = StringField(required=True, max_length=200)
-    posted = DateTimeField(default=datetime.datetime.utcnow)
-    tags = ListField(StringField(max_length=50))
-    meta = {'allow_inheritance': True}
-
-
-class TextPost(BlogPost):
-    content = StringField(required=True)
-
-
-class LinkPost(BlogPost):
-    url = StringField(required=True)
-
+_ = connect
 
 app = FastAPI()
+
+
+@app.exception_handler(mongoengine.errors.NotUniqueError)
+async def validation_exception_handler(request, err):
+    return JSONResponse(status_code=409, content=f'{dict(message="object exist")}')
+
+
+@app.exception_handler(mongoengine.errors.DoesNotExist)
+async def validation_exception_handler(request, err):
+    return JSONResponse(status_code=404, content=f'{dict(message="object does not exist")}')
+
 
 origins = [
     "http://frontend:3000",
@@ -45,32 +34,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.include_router(database_router)
 
 
 @app.get("/", tags=["Root"])
 async def read_root():
     return {
         "message": "Welcome to my notes application, use the /docs route to proceed"
-    }
-
-
-@app.get("/db/create", tags=["Root"])
-async def db_create():
-    post1 = TextPost(title='Using MongoEngine', content='See the tutorial')
-    post1.tags = ['mongodb', 'mongoengine']
-    post1.save()
-
-    return {
-        "message": "Welcome to my notes application, use the /docs route to proceed"
-    }
-
-
-@app.get("/db/read")
-async def db_read():
-    contents = []
-    for post in BlogPost.objects:
-        contents.append(post.content)
-
-    return {
-        "message": len(contents)
     }
