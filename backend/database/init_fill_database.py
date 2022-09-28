@@ -25,7 +25,7 @@ def write_data(pair: Tuple[MongoClient, dict]):
 def init_database(json_path: str, flush: bool = False, parallel_db_writers: int = 100):
     if flush:
         citations_db.drop_collection('paper')
-    connections: Tuple[MongoClient] = tuple(new_connection() for _ in range(parallel_db_writers))
+    connections: Tuple[MongoClient] = tuple(new_connection()[0] for _ in range(parallel_db_writers))
     parsed_stack = []
     for doc in parse_json(file_path=json_path):
         parsed_stack.append(doc)
