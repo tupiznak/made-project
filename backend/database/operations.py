@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 
 import database.db_objects as db
 from .models import *
@@ -14,7 +14,7 @@ class PaperOperations:
         citations_db.drop_collection('paper')
 
     @staticmethod
-    def to_model(db_paper: db.Paper | dict) -> Paper:
+    def to_model(db_paper: Union[db.Paper, dict]) -> Paper:
         if isinstance(db_paper, db.Paper):
             return Paper.parse_raw(db_paper.to_json())
         else:
