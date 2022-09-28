@@ -3,6 +3,8 @@ import os
 from mongoengine import *
 from pymongo import MongoClient
 
+DATABASE_NAME = 'citations_test'
+
 try:
     host = os.environ['MONGODB_URI']
     host = host.rsplit('/', maxsplit=1)[0] + '/user'
@@ -11,15 +13,8 @@ except KeyError:
 
 
 def new_connection() -> MongoClient:
-    return connect(name='citations', host=host)
+    return connect(name=DATABASE_NAME, host=host)
 
 
 client = new_connection()
-citations_db = client['citations']
-
-
-class Paper(Document):
-    _id = StringField(required=True)
-    title = StringField()
-    abstract = StringField()
-    meta = {'strict': False}
+citations_db = client[DATABASE_NAME]
