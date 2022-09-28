@@ -29,6 +29,10 @@ def test_crud(db):
     with pytest.raises(mongoengine.errors.DoesNotExist):
         PaperOperations.change_title(_id='3242ewr', title='ewsf')
 
+    PaperOperations.delete(paper.id)
+    with pytest.raises(mongoengine.errors.DoesNotExist):
+        PaperOperations.delete(paper.id)
+
 
 def test_chunk(db):
     p1 = PaperOperations.create(Paper(_id='q', title='gtrgdtg', abstract='grtgrt'))

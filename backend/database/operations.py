@@ -71,6 +71,11 @@ class PaperOperations:
                 papers.append(PaperOperations.get_by_id(i))
         return papers
 
+    @staticmethod
+    def delete(_id: str):
+        paper = PaperOperations.get_by_id(_id)
+        citations_db['paper'].delete_one(dict(_id=paper.id))
+
 
 if __name__ == '__main__':
     pass
