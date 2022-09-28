@@ -3,7 +3,7 @@ import os
 from mongoengine import *
 from pymongo import MongoClient
 
-DATABASE_NAME = 'citations_test'
+DATABASE_NAME = 'citations'
 
 try:
     host = os.environ['MONGODB_URI']

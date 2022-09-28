@@ -17,7 +17,7 @@ database_init_logger.setLevel(level=logging.DEBUG)
 def write_data(pair: Tuple[MongoClient, dict]):
     db_client, data = pair
     try:
-        db_client['citations']['paper'].insert_one(data)
+        citations_db['paper'].insert_one(data)
     except pymongo.errors.DuplicateKeyError as e:
         database_init_logger.debug(f'id duplicated: {e}')
 

@@ -1,5 +1,5 @@
-import pytest
 import mongoengine.errors
+import pytest
 
 from database.models import Paper
 from database.operations import PaperOperations
