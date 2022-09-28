@@ -1,11 +1,25 @@
+import mongoengine.errors
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
+from app.routes.database import database_router
 from database.connection import connect
 
 _ = connect
 
 app = FastAPI()
+
+
+@app.exception_handler(mongoengine.errors.NotUniqueError)
+async def validation_exception_handler(request, err):
+    return JSONResponse(status_code=409, content=f'{dict(message="object exist")}')
+
+
+@app.exception_handler(mongoengine.errors.DoesNotExist)
+async def validation_exception_handler(request, err):
+    return JSONResponse(status_code=404, content=f'{dict(message="object does not exist")}')
+
 
 origins = [
     "http://frontend:3000",
@@ -20,28 +34,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.include_router(database_router)
 
 
 @app.get("/", tags=["Root"])
 async def read_root():
     return {
         "message": "Welcome to my notes application, use the /docs route to proceed"
-    }
-
-
-@app.get("/db/create", tags=["Root"])
-async def db_create():
-    return {
-        "message": "Welcome to my notes application, use the /docs route to proceed"
-    }
-
-
-@app.get("/db/read")
-async def db_read():
-    contents = []
-    for post in BlogPost.objects:
-        contents.append(post.content)
-
-    return {
-        "message": len(contents)
     }
