@@ -34,3 +34,13 @@ async def update_database_paper(_id: str):
 @database_router.get("/database/papers/", tags=['papers'])
 async def read_database_papers(chunk_size: int = 10):
     return PaperOperations.get_chunk(chunk_size=chunk_size)
+
+
+@database_router.post("/database/papers/filter", tags=['papers'])
+async def filter_database_papers(paper_filter: dict, exclude_paper: dict = None, chunk_size: int = 10):
+    return PaperOperations.filter(paper_filter=paper_filter, exclude_paper=exclude_paper, chunk_size=chunk_size)
+
+
+@database_router.post("/database/papers/abstract_substring", tags=['papers'])
+async def sub_str_in_abstract_database_papers(sub_string: str, chunk_size: int = 10):
+    return PaperOperations.find_sub_string_in_abstract(sub_str=sub_string, chunk_size=chunk_size)

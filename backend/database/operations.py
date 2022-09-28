@@ -3,6 +3,7 @@ from typing import List, Union
 import database.db_objects as db
 from .models import *
 from .connection import citations_db
+from mongoengine import QuerySet
 
 _ = citations_db
 
@@ -72,6 +73,11 @@ class PaperOperations:
         return papers
 
     @staticmethod
+    def delete(_id: str):
+        paper = PaperOperations.get_by_id(_id)
+        citations_db['paper'].delete_one(dict(_id=paper.id))
+
+    @staticmethod
     def filter(paper_filter: dict, exclude_paper: dict = None, chunk_size: int = 10) -> List[Paper]:
         if exclude_paper is None:
             exclude_paper = {}
@@ -83,9 +89,12 @@ class PaperOperations:
         return papers
 
     @staticmethod
-    def delete(_id: str):
-        paper = PaperOperations.get_by_id(_id)
-        citations_db['paper'].delete_one(dict(_id=paper.id))
+    def find_sub_string_in_abstract(sub_str: str, chunk_size: int = 10) -> List[Paper]:
+        query: QuerySet = db.Paper.objects(abstract__icontains=sub_str) \
+            .aggregate([{'$sample': {'size': chunk_size}}])
+        db_objects = [o for o in query]
+        papers = [PaperOperations.to_model(p) for p in db_objects]
+        return papers
 
 
 if __name__ == '__main__':
