@@ -1,16 +1,12 @@
 import datetime
-import os
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from mongoengine import *
 
-try:
-    host = os.environ['MONGODB_URI']
-    host = host.rsplit('/', maxsplit=1)[0]+'/user'
-except KeyError:
-    host = 'database'
-connect(name='test', host=host)
+from mongoengine import *
+from database.connection import connect
+
+_ = connect
 
 
 class BlogPost(Document):
