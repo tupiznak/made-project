@@ -5,7 +5,6 @@ from pprint import pprint
 import re
 import string
 
-FILE_PATH = '../../../../mp_data/dblpv13.json'
 FILE_LINES_COUNT = 409129302
 
 logging.basicConfig(level=logging.NOTSET)
@@ -25,7 +24,7 @@ def custom_replaces(line: str):
     return line
 
 
-def parse_json(file_path: str = FILE_PATH,
+def parse_json(file_path: str,
                previous_parsed_documents: int = 0,
                log_period: int = 10000):
     curr_lines_count = 1
@@ -68,7 +67,8 @@ def parse_json(file_path: str = FILE_PATH,
 
 
 if __name__ == '__main__':
+    import os
     json_parser_logger.setLevel(level=logging.ERROR)
-    for doc_json in parse_json():
+    for doc_json in parse_json(os.environ['JSON_PATH']):
         # pprint(doc_json)
         pass
