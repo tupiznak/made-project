@@ -3,7 +3,6 @@ import json
 import logging
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
-from typing import Tuple
 
 import pymongo.errors
 from pymongo.database import Database
@@ -21,7 +20,7 @@ def write_data(pair: tuple[Database, dict]):
     db, data = pair
     try:
         db['paper'].insert_many(data)
-    except Exception as e:
+    except pymongo.errors.DuplicateKeyError as e:
         database_init_logger.debug(f'id duplicated: {e}')
 
 
@@ -70,7 +69,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='database initialisation module')
     parser.add_argument('--file-path', metavar='file_path', type=str,
                         help='json file location', required=True)
-    parser.add_argument('--flush', metavar='flush', type=bool, default=True,
+    parser.add_argument('--flush', metavar='flush', type=bool, default=False,
                         help='flush database before initialization [default: False]', required=False)
     parser.add_argument('--preprocessed-file', metavar='preprocessed_file', type=bool, default=True,
                         help='is file preprocessed? (correct.txt) [default: True]', required=False)
