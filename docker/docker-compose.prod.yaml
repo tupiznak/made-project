@@ -10,7 +10,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ${PWD}/backend:/usr/src/app
+      - ${PWD}/../backend:/usr/src/app
     entrypoint: uvicorn main:app --reload --host 0.0.0.0 --port 8000
     command: ""
 
@@ -22,8 +22,8 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ${PWD}/frontend/site:/usr/src/app
-    entrypoint: sh -c "yarn install && yarn dev"
+      - ${PWD}/../frontend/site:/usr/src/app
+    entrypoint: sh -c "yarn install && yarn deploy"
     environment:
       - HOST=0.0.0.0
     command: ""
