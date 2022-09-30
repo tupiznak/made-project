@@ -1,9 +1,9 @@
 import json
 import logging
-from datetime import datetime
-from pprint import pprint
+import os
 import re
 import string
+from datetime import datetime
 
 FILE_LINES_COUNT = 409129302
 
@@ -66,9 +66,12 @@ def parse_json(file_path: str,
             yield json_doc
 
 
+def made_correct_ljson(output_file: str):
+    with open(output_file, 'w') as output_file:
+        for doc_json in parse_json(os.environ['JSON_PATH']):
+            output_file.writelines([json.dumps(doc_json), '\n'])
+
+
 if __name__ == '__main__':
-    import os
     json_parser_logger.setLevel(level=logging.ERROR)
-    for doc_json in parse_json(os.environ['JSON_PATH']):
-        # pprint(doc_json)
-        pass
+    made_correct_ljson('/correct.txt')

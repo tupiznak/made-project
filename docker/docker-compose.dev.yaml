@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+
+  database:
+    hostname: database
+    container_name: database
+    image: mongo:6
+    volumes:
+      - made22t4-database:/data/db
+    ports:
+      - "27017:27017"
+  
+  logs:
+    hostname: logs
+    container_name: logs
+    image: made22t4/logs:1.0
+    ports:
+      - "9000:3000"
+
+volumes:
+  made22t4-database:
+      external: true
