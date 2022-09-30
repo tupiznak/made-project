@@ -24,12 +24,12 @@ async def update_database_paper(paper: Paper):
 
 
 @database_router.post("/database/papers/update/title", tags=['papers'])
-async def update_database_paper(_id: str, title: str):
+async def update_title_database_paper(_id: str, title: str):
     return paper_operations.change_title(_id, title)
 
 
 @database_router.post("/database/papers/delete", tags=['papers'])
-async def update_database_paper(_id: str):
+async def delete_database_paper(_id: str):
     return paper_operations.delete(_id)
 
 
