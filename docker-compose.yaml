@@ -34,3 +34,11 @@ services:
     image: mongo:6
     expose:
       - "27017:27017"
+  
+  logs:
+    hostname: logs
+    container_name: logs
+    image: made22t4/logs:1.0
+    ports:
+      - "9000:3000"
+

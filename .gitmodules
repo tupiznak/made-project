@@ -1,0 +1,3 @@
+[submodule "logs/mongodb-grafana"]
+	path = logs/mongodb-grafana
+	url = git@github.com:JamesOsgood/mongodb-grafana.git
