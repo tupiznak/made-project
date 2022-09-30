@@ -8,4 +8,4 @@ class Paper(Document):
     year = IntField()
     n_citation = IntField()
 
-    meta = {'strict': False, }
+    meta = {'strict': False, 'db_alias': 'citations'}
