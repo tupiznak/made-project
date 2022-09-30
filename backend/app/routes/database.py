@@ -46,3 +46,8 @@ async def filter_database_papers(paper_filter: dict, exclude_paper: dict = None,
 @database_router.post("/database/papers/abstract_substring", tags=['papers'])
 async def sub_str_in_abstract_database_papers(sub_string: str, chunk_size: int = 10):
     return paper_operations.find_sub_string_in_abstract(sub_str=sub_string, chunk_size=chunk_size)
+
+
+@database_router.get("/database/papers/total_size", tags=['papers'])
+async def total_size_database_papers():
+    return paper_operations.total_size()

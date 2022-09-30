@@ -70,3 +70,7 @@ def test_sub_str_abstract(paper_operations, some_data):
     assert set(paper_operations.find_sub_string_in_abstract('we')) == {some_data[2], some_data[3]}
     assert set(paper_operations.find_sub_string_in_abstract('we', chunk_size=1)) == \
            {some_data[2]} or {some_data[3]}
+
+
+def test_count(paper_operations, some_data):
+    assert paper_operations.total_size() == 4

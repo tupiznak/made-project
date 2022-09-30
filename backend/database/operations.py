@@ -4,11 +4,12 @@ import database.db_objects as db
 from .models import *
 from .connection import citations_db
 from mongoengine import QuerySet
+from pymongo.database import Database
 
 
 class PaperOperations:
 
-    def __init__(self, database=citations_db):
+    def __init__(self, database: Database = citations_db):
         self.db = database
 
     def flush(self):
@@ -83,6 +84,9 @@ class PaperOperations:
         db_objects = [o for o in query]
         papers = [self.to_model(p) for p in db_objects]
         return papers
+
+    def total_size(self):
+        return self.db['paper'].estimated_document_count()
 
 
 if __name__ == '__main__':
