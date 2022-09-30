@@ -26,6 +26,7 @@ jobs:
           mongodb-version: ${{ matrix.mongodb-version }}
       - name: Install dependencies
         run: |
+          export MONGODB_URI=${{ secrets.MONGODB_URI }}
           env
           pip install -r backend/requirements.txt
       - name: Lint with flake8
