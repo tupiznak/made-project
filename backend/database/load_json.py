@@ -1,10 +1,9 @@
 import json
 import logging
 import os
-from datetime import datetime
-from pprint import pprint
 import re
 import string
+from datetime import datetime
 
 FILE_LINES_COUNT = 409129302
 
