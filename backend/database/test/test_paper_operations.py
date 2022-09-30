@@ -73,4 +73,4 @@ def test_sub_str_abstract(paper_operations, some_data):
 
 
 def test_count(paper_operations, some_data):
-    assert paper_operations.total_size() == 4
+    assert paper_operations.total_size() == 3

@@ -36,5 +36,4 @@ jobs:
       - name: Test with pytest
         run: |
           export MONGODB_URI=${{ secrets.MONGODB_URI }}
-          env
           pytest
