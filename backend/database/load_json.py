@@ -14,7 +14,7 @@ json_parser_logger.setLevel(level=logging.FATAL)
 
 def custom_replaces(line: str):
     line = re.sub(r'NumberInt\((.+)\)', r'\1', line)
-    line = line.replace(f'\\\\', f' ')
+    line = line.replace('\\\\', ' ')
     for c in string.ascii_lowercase:
         if c in ('n', 't'):
             continue

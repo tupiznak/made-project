@@ -3,3 +3,4 @@ mongoengine
 pymongo[srv]
 pydantic
 pytest
+flake8
