@@ -1,13 +1,14 @@
 import argparse
 import json
 import logging
+from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 
 import pymongo.errors
 from pymongo.database import Database
 
-from .connection import citations_db, new_connection
+from .connection import citations_db, client, new_connection
 from .load_json import parse_json, json_parser_logger
 
 logging.basicConfig(level=logging.NOTSET)
@@ -18,15 +19,45 @@ OBJECTS_COUNT = 5354308
 
 def write_data(pair: tuple[Database, dict]):
     db, data = pair
+    venues: dict[str, dict] = {}
+    authors: dict[str, list[dict]] = defaultdict(list)
+    papers = []
+    for d in data:
+        if d.get('venue', None) is not None:
+            if d['venue'].get('_id', None) is not None:
+                d['venue']['papers_count'] = 1
+                venues[d['_id']] = d['venue']
+                d['venue'] = d['venue']['_id']
+        if d.get('authors', None) is not None:
+            for author in d['authors']:
+                if author.get('_id', None) is not None:
+                    author['papers_count'] = 1
+                    authors[d['_id']].append(author)
+            d['authors'] = [author['_id'] for author in authors[d['_id']]]
+        paper = d
+        papers.append(paper)
     try:
-        db['paper'].insert_many(data)
-    except pymongo.errors.DuplicateKeyError as e:
-        database_init_logger.debug(f'id duplicated: {e}')
+        db['paper'].insert_many(papers, ordered=False)
+    except pymongo.errors.PyMongoError as e:
+        for paper in papers:
+            if paper['_id'] in str(e):
+                del venues[paper['_id']]
+    try:
+        venues_id = [v['_id'] for v in venues.values()]
+        db['venue'].update_many(filter={'_id': {'$in': venues_id}},
+                                update={'$inc': {'papers_count': 1}},
+                                upsert=False)
+    except pymongo.errors.PyMongoError as e:
+        database_init_logger.debug(f'id venue duplicated: {e}')
+    try:
+        db['venue'].insert_many(venues.values(), ordered=False)
+    except pymongo.errors.BulkWriteError:
+        pass
 
 
 def init_database(json_path: str, flush: bool = False, stack_size: int = 1000, parallel_db_writers: int = 2):
     if flush:
-        citations_db.drop_collection('paper')
+        client.drop_database(citations_db.name)
     connections: tuple[Database] = tuple(new_connection()[1] for _ in range(parallel_db_writers))
     parsed_stack = []
     for doc in parse_json(file_path=json_path):
@@ -43,7 +74,7 @@ def init_database(json_path: str, flush: bool = False, stack_size: int = 1000, p
 def init_database_fast(jsonl_path: str, flush: bool = False,
                        stack_size: int = 1000, parallel_db_writers: int = 2):
     if flush:
-        citations_db.drop_collection('paper')
+        client.drop_database(citations_db.name)
     connections: tuple[Database] = tuple(new_connection()[1] for _ in range(parallel_db_writers))
     parsed_stack = []
     curr_objects_count = 0
@@ -69,12 +100,15 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='database initialisation module')
     parser.add_argument('--file-path', metavar='file_path', type=str,
                         help='json file location', required=True)
-    parser.add_argument('--flush', metavar='flush', type=bool, default=False,
-                        help='flush database before initialization [default: False]', required=False)
+    parser.add_argument('--flush', metavar='flush', type=bool, default=True,
+                        help='flush database before initialization [default: True]', required=False)
     parser.add_argument('--preprocessed-file', metavar='preprocessed_file', type=bool, default=True,
                         help='is file preprocessed? (correct.txt) [default: True]', required=False)
 
     parser = parser.parse_args()
+    if parser.flush:
+        database_init_logger.warning('database will bi flashed!!! Sure?')
+        # input()
 
     database_init_logger.setLevel(level=logging.DEBUG)
     json_parser_logger.setLevel(level=logging.ERROR)
