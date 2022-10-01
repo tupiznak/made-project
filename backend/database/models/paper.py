@@ -8,6 +8,7 @@ class Paper(BaseModel):
     year: int = None
     n_citation: int = None
     venue: str = None
+    authors: list[str] = Field(default_factory=lambda: [])
 
     def __hash__(self):
         return hash(self.id)

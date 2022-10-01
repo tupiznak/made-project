@@ -1,7 +1,5 @@
 from mongoengine import *
 
-from .venue import Venue
-
 
 class Paper(Document):
     _id = StringField()
@@ -10,5 +8,6 @@ class Paper(Document):
     year = IntField()
     n_citation = IntField()
     venue = StringField()
+    authors = ListField(StringField)
 
     meta = {'strict': False, 'db_alias': 'citations'}
