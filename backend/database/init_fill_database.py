@@ -23,39 +23,56 @@ def write_data(pair: tuple[Database, dict]):
     authors: dict[str, list[dict]] = defaultdict(list)
     papers = []
     for d in data:
+        # parse venues
         if d.get('venue', None) is not None:
             if d['venue'].get('_id', None) is not None:
                 d['venue']['papers_count'] = 1
                 venues[d['_id']] = d['venue']
                 d['venue'] = d['venue']['_id']
+
+        # parse authors
         if d.get('authors', None) is not None:
             for author in d['authors']:
                 if author.get('_id', None) is not None:
                     author['papers_count'] = 1
                     authors[d['_id']].append(author)
             d['authors'] = [author['_id'] for author in authors[d['_id']]]
+
         paper = d
         papers.append(paper)
+
+    # insert papers
     try:
         db['paper'].insert_many(papers, ordered=False)
     except pymongo.errors.PyMongoError as e:
         for paper in papers:
             if paper['_id'] in str(e):
                 del venues[paper['_id']]
-    try:
-        venues_id = [v['_id'] for v in venues.values()]
-        db['venue'].update_many(filter={'_id': {'$in': venues_id}},
-                                update={'$inc': {'papers_count': 1}},
-                                upsert=False)
-    except pymongo.errors.PyMongoError as e:
-        database_init_logger.debug(f'id venue duplicated: {e}')
+
+    # insert venues
+    venues_id = [v['_id'] for v in venues.values()]
+    db['venue'].update_many(filter={'_id': {'$in': venues_id}},
+                            update={'$inc': {'papers_count': 1}},
+                            upsert=False)
     try:
         db['venue'].insert_many(venues.values(), ordered=False)
     except pymongo.errors.BulkWriteError:
         pass
 
+    # insert authors
+    for paper_authors in authors.values():
+        authors_id = [v['_id'] for v in paper_authors]
+        db['author'].update_many(filter={'_id': {'$in': authors_id}},
+                                 update={'$inc': {'papers_count': 1}},
+                                 upsert=False)
+        try:
+            db['author'].insert_many(paper_authors, ordered=False)
+        except pymongo.errors.BulkWriteError:
+            pass
 
-def init_database(json_path: str, flush: bool = False, stack_size: int = 1000, parallel_db_writers: int = 2):
+
+def init_database(json_path: str, flush: bool = False,
+                  stack_size: int = 1000, parallel_db_writers: int = 2):
     if flush:
         client.drop_database(citations_db.name)
     connections: tuple[Database] = tuple(new_connection()[1] for _ in range(parallel_db_writers))
