@@ -3,7 +3,7 @@ import pytest
 
 import database.connection
 from database.models.paper import Paper
-from database.operations import PaperOperations
+from database.operations.paper import PaperOperations
 
 
 @pytest.fixture
