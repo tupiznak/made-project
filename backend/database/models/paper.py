@@ -7,6 +7,7 @@ class Paper(BaseModel):
     abstract: str = None
     year: int = None
     n_citation: int = None
+    venue: str = None
 
     def __hash__(self):
         return hash(self.id)

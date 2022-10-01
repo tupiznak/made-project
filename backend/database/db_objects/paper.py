@@ -9,6 +9,6 @@ class Paper(Document):
     abstract = StringField()
     year = IntField()
     n_citation = IntField()
-    venue = Venue()
+    venue = StringField()
 
     meta = {'strict': False, 'db_alias': 'citations'}
