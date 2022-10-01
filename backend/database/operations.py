@@ -1,7 +1,7 @@
 from typing import List, Union
 
-import database.db_objects as db
-from .models import *
+import database.db_objects.paper as db
+from .models.paper import *
 from .connection import citations_db
 from mongoengine import QuerySet
 from pymongo.database import Database

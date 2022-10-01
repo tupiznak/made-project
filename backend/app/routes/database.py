@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from database.models import Paper
+from database.models.paper import Paper
 from database.operations import PaperOperations
 
 database_router = APIRouter()
