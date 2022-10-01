@@ -75,6 +75,7 @@ def init_database(json_path: str, flush: bool = False,
                   stack_size: int = 1000, parallel_db_writers: int = 2):
     if flush:
         client.drop_database(citations_db.name)
+    citations_db['paper'].create_index('venue')
     connections: tuple[Database] = tuple(new_connection()[1] for _ in range(parallel_db_writers))
     parsed_stack = []
     for doc in parse_json(file_path=json_path):
@@ -92,10 +93,12 @@ def init_database_fast(jsonl_path: str, flush: bool = False,
                        stack_size: int = 1000, parallel_db_writers: int = 2):
     if flush:
         client.drop_database(citations_db.name)
+    citations_db['paper'].create_index('venue')
     connections: tuple[Database] = tuple(new_connection()[1] for _ in range(parallel_db_writers))
     parsed_stack = []
     curr_objects_count = 0
     init_time = datetime.now()
+    previous_progress = 0
     with open(jsonl_path) as f:
         for doc in f:
             parsed_stack.append(json.loads(doc))
@@ -108,9 +111,13 @@ def init_database_fast(jsonl_path: str, flush: bool = False,
                     parsed_stack = []
                 curr_objects_count += stack_size * parallel_db_writers
                 progress = curr_objects_count / OBJECTS_COUNT
-                database_init_logger.debug(f'[{datetime.now() - init_time}] '
-                                           f'progress: {progress * 100:3.2f}%, '
-                                           f'documents uploaded: {curr_objects_count}')
+                if progress - previous_progress > 0.01:
+                    previous_progress = progress
+                    full_time = datetime.now() - init_time
+                    database_init_logger.debug(f'[{full_time}] '
+                                               f'progress: {progress * 100:3.2f}%, '
+                                               f'documents uploaded: {curr_objects_count}, '
+                                               f'speed: {curr_objects_count / full_time.total_seconds():.0f} obj/sec')
 
 
 if __name__ == '__main__':
