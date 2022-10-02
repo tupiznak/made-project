@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
-from database.models import Paper
-from database.operations import PaperOperations
+from database.models.paper import Paper
+from database.operations.paper import PaperOperations
 
 database_router = APIRouter()
 
@@ -51,3 +51,8 @@ async def sub_str_in_abstract_database_papers(sub_string: str, chunk_size: int =
 @database_router.get("/database/papers/total_size", tags=['papers'])
 async def total_size_database_papers():
     return paper_operations.total_size()
+
+
+@database_router.get("/database/papers/venue", tags=['papers'])
+async def venues_database_papers(venue_id: str, chunk_size: int = 10):
+    return paper_operations.get_papers_by_venue(venue_id=venue_id, chunk_size=chunk_size)

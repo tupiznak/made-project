@@ -1,12 +1,11 @@
 from pydantic import BaseModel, Field
 
 
-class Paper(BaseModel):
+class Venue(BaseModel):
     id: str = Field(alias='_id')
-    title: str = None
-    abstract: str = None
-    year: int = None
-    n_citation: int = None
+    name_d: str = None
+    raw: str = None
+    type: int = None
 
     def __hash__(self):
         return hash(self.id)

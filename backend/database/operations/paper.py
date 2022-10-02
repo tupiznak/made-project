@@ -1,8 +1,8 @@
 from typing import List, Union
 
-import database.db_objects as db
-from .models import *
-from .connection import citations_db
+import database.db_objects.paper as db
+from database.models.paper import *
+from database.connection import citations_db
 from mongoengine import QuerySet
 from pymongo.database import Database
 
@@ -11,6 +11,10 @@ class PaperOperations:
 
     def __init__(self, database: Database = citations_db):
         self.db = database
+
+    @property
+    def collection(self):
+        return self.db['paper']
 
     def flush(self):
         self.db.drop_collection('paper')
@@ -66,7 +70,7 @@ class PaperOperations:
 
     def delete(self, _id: str):
         paper = self.get_by_id(_id)
-        self.db['paper'].delete_one(dict(_id=paper.id))
+        self.collection.delete_one(dict(_id=paper.id))
 
     def filter(self, paper_filter: dict, exclude_paper: dict = None, chunk_size: int = 10) -> List[Paper]:
         if exclude_paper is None:
@@ -86,7 +90,24 @@ class PaperOperations:
         return papers
 
     def total_size(self):
-        return self.db['paper'].estimated_document_count()
+        return self.collection.estimated_document_count()
+
+    def get_papers_by_venue(self, venue_id: str, chunk_size: int = 10) -> List[Paper]:
+        query = self.collection.aggregate([
+            {
+                '$match': {
+                    'venue': venue_id
+                }
+            },
+            {
+                '$sample': {
+                    'size': chunk_size
+                }
+            }
+        ])
+        db_objects = [o for o in query]
+        papers = [self.to_model(p) for p in db_objects]
+        return papers
 
 
 if __name__ == '__main__':

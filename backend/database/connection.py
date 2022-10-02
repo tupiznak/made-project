@@ -7,7 +7,7 @@ from pymongo.database import Database
 DATABASE_NAME = 'citations'
 
 
-def new_connection(db_name: str = None, alias: str = None) -> (MongoClient, Database):
+def new_connection(db_name: str = None, alias: str = None) -> tuple[MongoClient, Database]:
     db_name = db_name or DATABASE_NAME
     alias = alias or db_name
     try:
