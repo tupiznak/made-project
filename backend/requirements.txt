@@ -4,3 +4,4 @@ pymongo[srv]
 pydantic
 pytest
 flake8
+starlette_exporter
