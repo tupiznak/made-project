@@ -8,10 +8,12 @@ services:
     container_name: backend
     image: made22t4/backend:1.0
     ports:
-      - "8000:8000"
+      - "8888:8888"
+    expose:
+      - "8888:8888"
     volumes:
       - ${PWD}/../backend:/usr/src/app
-    entrypoint: uvicorn main:app --reload --host 0.0.0.0 --port 8000
+    entrypoint: uvicorn main:app --reload --host 0.0.0.0 --port 8888
     command: ""
 
   frontend:
@@ -34,11 +36,27 @@ services:
     image: mongo:6
     expose:
       - "27017:27017"
-  
-  logs:
-    hostname: logs
-    container_name: logs
+    volumes:
+      - made22t4-database:/data/db
+
+  logs-front:
+    hostname: logs-front
+    container_name: logs-front
     image: made22t4/logs:1.0
     ports:
       - "9000:3000"
 
+  logs-back:
+    hostname: logs-back
+    container_name: logs-back
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - workspace
+    volumes:
+      - ${PWD}/../logs/prometheus.yml:/etc/prometheus/prometheus.yml
+
+volumes:
+  made22t4-database:
+    external: true
