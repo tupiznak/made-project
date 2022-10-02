@@ -24,8 +24,6 @@ services:
     image: prom/prometheus
     ports:
       - "9090:9090"
-    networks:
-      - workspace
     volumes:
       - ${PWD}/../logs/prometheus.yml:/etc/prometheus/prometheus.yml
 

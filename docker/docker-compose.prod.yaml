@@ -25,7 +25,7 @@ services:
       - "3000:3000"
     volumes:
       - ${PWD}/../frontend/site:/usr/src/app
-    entrypoint: sh -c "yarn install && yarn deploy"
+    entrypoint: sh -c "yarn install && yarn generate && yarn start"
     environment:
       - HOST=0.0.0.0
     command: ""
@@ -52,8 +52,6 @@ services:
     image: prom/prometheus
     ports:
       - "9090:9090"
-    networks:
-      - workspace
     volumes:
       - ${PWD}/../logs/prometheus.yml:/etc/prometheus/prometheus.yml
 
