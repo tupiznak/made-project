@@ -85,7 +85,7 @@ class VenueOperations:
     def total_size(self):
         return self.collection.estimated_document_count()
 
-    def get_venues_by_type(self, type_id: str, chunk_size: int = 10) -> List[Venue]:
+    def get_venues_by_type(self, type_id: int, chunk_size: int = 10) -> List[Venue]:
         query = self.collection.aggregate([
             {
                 '$match': {

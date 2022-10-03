@@ -19,14 +19,14 @@ def venue_operations():
 @pytest.fixture
 def some_data(venue_operations):
     v1 = venue_operations.create(Venue(_id='q', name_d='gtrgdtg', raw='grtgrt'))
-    v2 = venue_operations.create(Venue(_id='q2', name_d='gtrgdtg', raw='xa', type='123'))
-    v3 = venue_operations.create(Venue(_id='q22', name_d='gtrgdtg', raw='grtgrt kjfwe ewr', type='123'))
-    v4 = venue_operations.create(Venue(_id='222', name_d='gg', raw='wer', type='32'))
+    v2 = venue_operations.create(Venue(_id='q2', name_d='gtrgdtg', raw='xa', type=123))
+    v3 = venue_operations.create(Venue(_id='q22', name_d='gtrgdtg', raw='grtgrt kjfwe ewr', type=123))
+    v4 = venue_operations.create(Venue(_id='222', name_d='gg', raw='wer', type=32))
     return v1, v2, v3, v4
 
 
 def test_crud(venue_operations):
-    venue = Venue(_id='q', name_d='gtrgdtg', raw='grtgrt', type='123')
+    venue = Venue(_id='q', name_d='gtrgdtg', raw='grtgrt', type=123)
     venue_operations.model_to_db(venue_operations.to_model(venue_operations.model_to_db(venue)))
 
     venue_operations.create(venue)
@@ -60,10 +60,10 @@ def test_chunk(venue_operations, some_data):
 
 def test_filter(venue_operations, some_data):
     assert venue_operations.filter(dict(name_d='gg')) == [some_data[3]]
-    assert set(venue_operations.filter(dict(type='123'))) == {some_data[1], some_data[2]}
-    assert set(venue_operations.filter(dict(type='123'))) == {some_data[1], some_data[2]}
-    assert venue_operations.filter(dict(type='123', raw='xa')) == [some_data[1]]
-    assert venue_operations.filter(dict(type='123'), exclude_venue=dict(raw='grtgrt kjfwe ewr')) == [some_data[1]]
+    assert set(venue_operations.filter(dict(type=123))) == {some_data[1], some_data[2]}
+    assert set(venue_operations.filter(dict(type=123))) == {some_data[1], some_data[2]}
+    assert venue_operations.filter(dict(type=123, raw='xa')) == [some_data[1]]
+    assert venue_operations.filter(dict(type=123), exclude_venue=dict(raw='grtgrt kjfwe ewr')) == [some_data[1]]
 
 
 def test_count(venue_operations, some_data):
@@ -71,5 +71,5 @@ def test_count(venue_operations, some_data):
 
 
 def test_venues_by_type(venue_operations, some_data):
-    assert set(venue_operations.get_venues_by_type(type_id='123', chunk_size=10)) == \
+    assert set(venue_operations.get_venues_by_type(type_id=123, chunk_size=10)) == \
            {some_data[2], some_data[1]}
