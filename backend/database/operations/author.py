@@ -19,21 +19,21 @@ class AuthorOperations:
     def flush(self):
         self.db.drop_collection('author')
 
-    def to_model(self, db_author : Union[db.Author, dict]) -> Author:
+    def to_model(self, db_author: Union[db.Author, dict]) -> Author:
         if isinstance(db_author, db.Author):
             return Author.parse_raw(db_author.to_json())
         else:
             return Author.parse_obj(db_author)
 
-    def replace_id(self, author : dict):
+    def replace_id(self, author: dict):
         author['_id'] = author['id']
         del author['id']
         return author
 
-    def model_to_db(self, author : Author) -> db.Author:
+    def model_to_db(self, author: Author) -> db.Author:
         return db.Author(**author.dict(by_alias=True))
 
-    def create(self, author : Author) -> Author:
+    def create(self, author: Author) -> Author:
         db_author = self.model_to_db(author)
         db_author.save(force_insert=True)
         return author
@@ -46,7 +46,7 @@ class AuthorOperations:
         author = self.to_model(db_author)
         return author
 
-    def full_update(self, author : Author) -> Author:
+    def full_update(self, author: Author) -> Author:
         db_author = self.model_to_db(author)
         db_author.save()
         return self.to_model(db_author)

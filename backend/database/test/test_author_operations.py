@@ -66,7 +66,6 @@ def test_filter(author_operations, some_data):
     assert author_operations.filter(dict(gid='sdaf'), exclude_author=dict(name='gg')) == [some_data[1]]
 
 
-
 def test_count(author_operations, some_data):
     assert author_operations.total_size() == 4
 
