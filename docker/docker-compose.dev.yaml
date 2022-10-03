@@ -11,13 +11,22 @@ services:
     ports:
       - "27017:27017"
   
-  logs:
-    hostname: logs
-    container_name: logs
+  logs-front:
+    hostname: logs-front
+    container_name: logs-front
     image: made22t4/logs:1.0
     ports:
       - "9000:3000"
 
+  logs-back:
+    hostname: logs-back
+    container_name: logs-back
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ${PWD}/../logs/prometheus.yml:/etc/prometheus/prometheus.yml
+
 volumes:
   made22t4-database:
-      external: true
+    external: true
