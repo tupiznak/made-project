@@ -7,6 +7,8 @@ from datetime import datetime
 
 import pymongo.errors
 from pymongo.database import Database
+from pymongo.write_concern import WriteConcern
+from pymongo import UpdateOne
 
 from .connection import citations_db, client, new_connection
 from .load_json import parse_json, json_parser_logger
@@ -20,7 +22,9 @@ OBJECTS_COUNT = 5354308
 def write_data(pair: tuple[Database, dict]):
     db, data = pair
     venues: dict[str, dict] = {}
-    authors: dict[str, list[dict]] = defaultdict(list)
+    authors_by_paper: dict[str, list[dict]] = defaultdict(list)
+    author_by_author_id: dict[str, dict] = {}
+    papers_by_author_id: dict[str, list[str]] = defaultdict(list)
     papers = []
     for d in data:
         # parse venues
@@ -34,14 +38,16 @@ def write_data(pair: tuple[Database, dict]):
         if d.get('authors', None) is not None:
             for author in d['authors']:
                 if author.get('_id', None) is not None:
-                    author['papers_count'] = 1
-                    authors[d['_id']].append(author)
-            d['authors'] = [author['_id'] for author in authors[d['_id']]]
+                    authors_by_paper[d['_id']].append(author)
+                    author_by_author_id[author['_id']] = author
+                    papers_by_author_id[author['_id']].append(d['_id'])
+            d['authors'] = [author['_id'] for author in authors_by_paper[d['_id']]]
 
         paper = d
         papers.append(paper)
 
     # insert papers
+    # FIXME not work with flush=False
     try:
         db['paper'].insert_many(papers, ordered=False)
     except pymongo.errors.PyMongoError as e:
@@ -60,15 +66,36 @@ def write_data(pair: tuple[Database, dict]):
         pass
 
     # insert authors
-    for paper_authors in authors.values():
-        authors_id = [v['_id'] for v in paper_authors]
-        db['author'].update_many(filter={'_id': {'$in': authors_id}},
-                                 update={'$inc': {'papers_count': 1}},
-                                 upsert=False)
+    author_by_author_id: list[dict] = list(author_by_author_id.values())
+
+    author_chunks: list[list[dict]] = []
+    for i in range(len(author_by_author_id) // len(data)):
+        author_chunks.append(author_by_author_id[i * len(data):(i + 1) * len(data)])
+    if len(author_chunks[-1]) < len(data) / 2 and len(author_chunks) > 1:
+        author_chunks[-2].extend(author_chunks[-1])
+        author_chunks = author_chunks[:-1]
+
+    for chunk in author_chunks:
         try:
-            db['author'].insert_many(paper_authors, ordered=False)
-        except pymongo.errors.BulkWriteError:
+            db['author'].insert_many(chunk, ordered=False)
+        except pymongo.errors.BulkWriteError as e:
             pass
+
+    db['author'].bulk_write([UpdateOne(filter={'_id': author_id},
+                                       update={'$push': {'papers': {'$each': paper_ids}}})
+                             for author_id, paper_ids in papers_by_author_id.items()])
+
+    # for paper, paper_authors in authors_by_paper.items():
+    #     try:
+    #         db['author'].insert_many(paper_authors, ordered=False)
+    #     except pymongo.errors.BulkWriteError:
+    #         pass
+    #
+    #     authors_id = [v['_id'] for v in paper_authors]
+    #     db['author'].update_many(filter={'_id': {'$in': authors_id}},
+    #                              update={'$push': {'papers': paper}},
+    #                              upsert=False)
+    # print('+++')
 
 
 def init_database(json_path: str, flush: bool = False,
