@@ -6,6 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 
 import pymongo.errors
+from pymongo import UpdateOne
 from pymongo.database import Database
 
 from .connection import citations_db, client, new_connection
@@ -20,7 +21,9 @@ OBJECTS_COUNT = 5354308
 def write_data(pair: tuple[Database, dict]):
     db, data = pair
     venues: dict[str, dict] = {}
-    authors: dict[str, list[dict]] = defaultdict(list)
+    authors_by_paper: dict[str, list[dict]] = defaultdict(list)
+    author_by_author_id: dict[str, dict] = {}
+    papers_by_author_id: dict[str, list[str]] = defaultdict(list)
     papers = []
     for d in data:
         # parse venues
@@ -34,14 +37,16 @@ def write_data(pair: tuple[Database, dict]):
         if d.get('authors', None) is not None:
             for author in d['authors']:
                 if author.get('_id', None) is not None:
-                    author['papers_count'] = 1
-                    authors[d['_id']].append(author)
-            d['authors'] = [author['_id'] for author in authors[d['_id']]]
+                    authors_by_paper[d['_id']].append(author)
+                    author_by_author_id[author['_id']] = author
+                    papers_by_author_id[author['_id']].append(d['_id'])
+            d['authors'] = [author['_id'] for author in authors_by_paper[d['_id']]]
 
         paper = d
         papers.append(paper)
 
     # insert papers
+    # FIXME not work with flush=False
     try:
         db['paper'].insert_many(papers, ordered=False)
     except pymongo.errors.PyMongoError as e:
@@ -60,15 +65,24 @@ def write_data(pair: tuple[Database, dict]):
         pass
 
     # insert authors
-    for paper_authors in authors.values():
-        authors_id = [v['_id'] for v in paper_authors]
-        db['author'].update_many(filter={'_id': {'$in': authors_id}},
-                                 update={'$inc': {'papers_count': 1}},
-                                 upsert=False)
+    author_by_author_id: list[dict] = list(author_by_author_id.values())
+
+    author_chunks: list[list[dict]] = []
+    for i in range(len(author_by_author_id) // len(data)):
+        author_chunks.append(author_by_author_id[i * len(data):(i + 1) * len(data)])
+    if len(author_chunks[-1]) < len(data) / 2 and len(author_chunks) > 1:
+        author_chunks[-2].extend(author_chunks[-1])
+        author_chunks = author_chunks[:-1]
+
+    for chunk in author_chunks:
         try:
-            db['author'].insert_many(paper_authors, ordered=False)
+            db['author'].insert_many(chunk, ordered=False)
         except pymongo.errors.BulkWriteError:
             pass
+
+    db['author'].bulk_write([UpdateOne(filter={'_id': author_id},
+                                       update={'$push': {'papers': {'$each': paper_ids}}})
+                             for author_id, paper_ids in papers_by_author_id.items()])
 
 
 def init_database(json_path: str, flush: bool = False,
@@ -90,7 +104,8 @@ def init_database(json_path: str, flush: bool = False,
 
 
 def init_database_fast(jsonl_path: str, flush: bool = False,
-                       stack_size: int = 1000, parallel_db_writers: int = 2):
+                       stack_size: int = 1000, parallel_db_writers: int = 2,
+                       log_period_percent: float = 0.01):
     if flush:
         client.drop_database(citations_db.name)
     citations_db['paper'].create_index('venue')
@@ -111,7 +126,7 @@ def init_database_fast(jsonl_path: str, flush: bool = False,
                     parsed_stack = []
                 curr_objects_count += stack_size * parallel_db_writers
                 progress = curr_objects_count / OBJECTS_COUNT
-                if progress - previous_progress > 0.01:
+                if progress - previous_progress > log_period_percent:
                     previous_progress = progress
                     full_time = datetime.now() - init_time
                     database_init_logger.debug(f'[{full_time}] '
@@ -128,6 +143,10 @@ if __name__ == '__main__':
                         help='flush database before initialization [default: True]', required=False)
     parser.add_argument('--preprocessed-file', metavar='preprocessed_file', type=bool, default=True,
                         help='is file preprocessed? (correct.txt) [default: True]', required=False)
+    parser.add_argument('--stack-size', metavar='stack_size', type=int, default=1000,
+                        help='size of chunks of objects pushed to database [default: 1000]', required=False)
+    parser.add_argument('--log-period', metavar='log_period', type=float, default=0.01,
+                        help='period of log in percent [default: 0.01]', required=False)
 
     parser = parser.parse_args()
     if parser.flush:
@@ -137,6 +156,7 @@ if __name__ == '__main__':
     database_init_logger.setLevel(level=logging.DEBUG)
     json_parser_logger.setLevel(level=logging.ERROR)
     if parser.preprocessed_file:
-        init_database_fast(flush=parser.flush, jsonl_path=parser.file_path)
+        init_database_fast(flush=parser.flush, jsonl_path=parser.file_path,
+                           stack_size=parser.stack_size, log_period_percent=parser.log_period)
     else:
-        init_database(flush=parser.flush, json_path=parser.file_path)
+        init_database(flush=parser.flush, json_path=parser.file_path, stack_size=parser.stack_size)
