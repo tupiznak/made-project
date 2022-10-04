@@ -6,9 +6,8 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 
 import pymongo.errors
-from pymongo.database import Database
-from pymongo.write_concern import WriteConcern
 from pymongo import UpdateOne
+from pymongo.database import Database
 
 from .connection import citations_db, client, new_connection
 from .load_json import parse_json, json_parser_logger
