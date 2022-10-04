@@ -142,6 +142,8 @@ if __name__ == '__main__':
                         help='flush database before initialization [default: True]', required=False)
     parser.add_argument('--preprocessed-file', metavar='preprocessed_file', type=bool, default=True,
                         help='is file preprocessed? (correct.txt) [default: True]', required=False)
+    parser.add_argument('--stack-size', metavar='stack_size', type=int, default=1000,
+                        help='size of chunks of objects pushed to database [default: 1000]', required=False)
 
     parser = parser.parse_args()
     if parser.flush:
@@ -151,6 +153,8 @@ if __name__ == '__main__':
     database_init_logger.setLevel(level=logging.DEBUG)
     json_parser_logger.setLevel(level=logging.ERROR)
     if parser.preprocessed_file:
-        init_database_fast(flush=parser.flush, jsonl_path=parser.file_path)
+        init_database_fast(flush=parser.flush, jsonl_path=parser.file_path,
+                           stack_size=parser.stack_size)
     else:
-        init_database(flush=parser.flush, json_path=parser.file_path)
+        init_database(flush=parser.flush, json_path=parser.file_path,
+                      stack_size=parser.stack_size)
