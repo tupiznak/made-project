@@ -27,6 +27,7 @@ async def validation_exception_handler(request, err):
 origins = [
     "http://frontend:3000",
     "http://127.0.0.1:3000",
+    "http://localhost:3000",
     "https://made22t4.vercel.app",
 ]
 
