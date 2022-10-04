@@ -77,7 +77,7 @@ def write_data(pair: tuple[Database, dict]):
     for chunk in author_chunks:
         try:
             db['author'].insert_many(chunk, ordered=False)
-        except pymongo.errors.BulkWriteError as e:
+        except pymongo.errors.BulkWriteError:
             pass
 
     db['author'].bulk_write([UpdateOne(filter={'_id': author_id},
