@@ -1,161 +1,133 @@
 from fastapi import APIRouter
 
-from database.operations.paper import PaperOperations
-from database.models.paper import Paper
+from database.operations.venue import VenueOperations
+from database.models.venue import Venue
 
 venue_router = APIRouter(prefix='/venue')
-paper_operations = PaperOperations()
+venue_operations = VenueOperations()
 
 
 @venue_router.post("/create", tags=['venue'])
-async def create_database_paper(paper: Paper):
+async def create_database_venue(venue: Venue):
     """
-     ## Запрос позвляет создавать статьи в базе данных со следующими параметрами:
+     ## Запрос позвляет создавать событие в базе данных со следующими параметрами:
 
-    - **_id**: Уникальный идентификатор статьи (тип string)
-    - **title**: Название статьи (тип string)
-    - **abstract**: Описание текста статьи (тип string)
-    - **year**: Год публикации статьи (тип int)
-    - **n_citation**: Количество цитирований статьи (тип int)
-    - **venue**: Место публикации статьи (тип string)
-    - **authors**: Список уникальных идентификаторов авторов статьи (тип list)
+    - **_id**: Уникальный идентификатор события (тип string)
+    - **name_d**: Наименование события (тип string)
+    - **raw**: Краткое наименование события (тип string)
+    - **type**: Тип события (тип int)
     """
-    return paper_operations.create(paper)
+    return venue_operations.create(venue)
 
 
 @venue_router.post("/read", tags=['venue'])
-async def read_database_paper(_id: str):
+async def read_database_venue(_id: str):
     """
-     ## Запрос позвляет получать статьи из базы данных со следующими параметрами:
+     ## Запрос позвляет получать событие из базы данных со следующими параметрами:
 
-        - **_id**: Уникальный идентификатор статьи (тип string)
-        - **title**: Название статьи (тип string)
-        - **abstract**: Описание текста статьи (тип string)
-        - **year**: Год публикации статьи (тип int)
-        - **n_citation**: Количество цитирований статьи (тип int)
-        - **venue**: Место публикации статьи (тип string)
-        - **authors**: Список уникальных идентификаторов авторов статьи (тип list)
+    - **_id**: Уникальный идентификатор события (тип string)
+    - **name_d**: Наименование события (тип string)
+    - **raw**: Краткое наименование события (тип string)
+    - **type**: Тип события (тип int)
 
         ------------------------
-     ### Для получения статьи необходимо передать обязательный параметр:
-     - **_id**: Уникальный идентификатор статьи (тип string)
+     ### Для получения события необходимо передать обязательный параметр:
+     - **_id**: Уникальный идентификатор события (тип string)
     """
-    return paper_operations.get_by_id(_id=_id)
+    return venue_operations.get_by_id(_id=_id)
 
 
 @venue_router.post("/update", tags=['venue'])
-async def update_database_paper(paper: Paper):
+async def update_database_venue(venue: Venue):
     """
-     ## Запрос позвляет изменять статьи в базе данных.
-        Для изменения статьи необходимо передать следующие параметры:
+     ## Запрос позвляет изменять событие в базе данных.
+        Для изменения события необходимо передать следующие параметры:
 
-        - **_id**: Уникальный идентификатор статьи (тип string)
-        - **title**: Название статьи (тип string)
-        - **abstract**: Описание текста статьи (тип string)
-        - **year**: Год публикации статьи (тип int)
-        - **n_citation**: Количество цитирований статьи (тип int)
-        - **venue**: Место публикации статьи (тип string)
-        - **authors**: Список уникальных идентификаторов авторов статьи (тип list)
+    - **_id**: Уникальный идентификатор события (тип string)
+    - **name_d**: Наименование события (тип string)
+    - **raw**: Краткое наименование события (тип string)
+    - **type**: Тип события (тип int)
 
     """
-    return paper_operations.full_update(paper)
+    return venue_operations.full_update(venue)
 
 
-@venue_router.post("/update/title", tags=['venue'])
-async def update_title_database_paper(_id: str, title: str):
+@venue_router.post("/update/name", tags=['venue'])
+async def update_name_database_venue(_id: str, name_d: str):
     """
-     ## Запрос позвляет изменять название статьи в базе данных.
-        Для изменения названия конкретной статьи необходимо передать дваа обязательных параметра:
+     ## Запрос позвляет изменять название события в базе данных.
+        Для изменения названия конкретного события необходимо передать два обязательных параметра:
 
-        - **_id**: Уникальный идентификатор статьи (тип string)
-        - **title**: Новое название статьи (тип string)
+        - **_id**: Уникальный идентификатор события (тип string)
+        - **name_d**: Новое название события (тип string)
     """
-    return paper_operations.change_title(_id, title)
+    return venue_operations.change_name_d(_id, name_d)
 
 
 @venue_router.post("/delete", tags=['venue'])
-async def delete_database_paper(_id: str):
+async def delete_database_venue(_id: str):
     """
-     ## Запрос позвляет удалять статью из базы данных.
-        Для удаления конкретной статьи из базы данных необходимо передать обязательный параметр:
-        - **_id**: Уникальный идентификатор статьи (тип string)
+     ## Запрос позвляет удалять событие из базы данных.
+        Для удаления конкретного события из базы данных необходимо передать обязательный параметр:
+        - **_id**: Уникальный идентификатор события (тип string)
     """
-    return paper_operations.delete(_id)
+    return venue_operations.delete(_id)
 
 
 @venue_router.get("/", tags=['venue'])
-async def read_database_papers(chunk_size: int = 10):
+async def read_database_venue(chunk_size: int = 10):
     """
-     ## Запрос позвляет получить несколько статей из базы данных.
-        Для получения нужного количества статей необходимо передать необязательный параметр:
-        - **chunk_size**: количество статей (тип int)
+     ## Запрос позвляет получить несколько событий из базы данных.
+        Для получения нужного количества событий необходимо передать необязательный параметр:
+        - **chunk_size**: количество событий в выдаче (тип int)
 
         -------------
         По умолчанию параметр **chunk_size** имеет значение 10
     """
-    return paper_operations.get_chunk(chunk_size=chunk_size)
+    return venue_operations.get_chunk(chunk_size=chunk_size)
 
 
 @venue_router.post("/filter", tags=['venue'])
-async def filter_database_papers(paper_filter: dict, exclude_paper: dict = None, chunk_size: int = 10):
+async def filter_database_venues(venue_filter: dict, exclude_venue: dict = None, chunk_size: int = 10):
     """
-     ## Запрос позвляет получить несколько статей из базы данных по определённым условиям.
-        Для получения статей с заданными параметрами необходимо передать значение параметров в фильтры:
-        - **paper_filter**: фильтр параметров, значение которых должно быть включено в выдачу,
-        - **exclude_paper**: фильтр параметров, значение которых должно быть исключено из выдачи.
+     ## Запрос позвляет получить несколько событий из базы данных по определённым условиям.
+        Для получения событий с заданными параметрами необходимо передать значение параметров в фильтры:
+        - **venue_filter**: фильтр параметров, значение которых должно быть включено в выдачу,
+        - **exclude_venue**: фильтр параметров, значение которых должно быть исключено из выдачи.
 
         Для получения нужного количества статей необходимо передать необязательный параметр:
-        - **chunk_size**: количество статей (тип int)
+        - **chunk_size**: количество событий в выдаче (тип int)
 
-     ### В ответ на запрос выозвращается *chunk_size* статей, параметры которых включют параметры из *paper_filter* и
+     ### В ответ на запрос выозвращается *chunk_size* событий, параметры которых включют параметры из *paper_filter* и
      ### исключают параметры из *exclude_paper*
 
         -------------
         По умолчанию параметр **chunk_size** имеет значение 10
     """
-    return paper_operations.filter(paper_filter=paper_filter, exclude_paper=exclude_paper, chunk_size=chunk_size)
-
-
-@venue_router.post("/abstract_substring", tags=['venue'])
-async def sub_str_in_abstract_database_papers(sub_string: str, chunk_size: int = 10):
-    """
-     ## Запрос позвляет получить несколько статей из базы данных по подстроке в описании статьи.
-        Для получения статей, в описании которых присутствует заданная подстрока, необходимо передать
-        один обязательный параметр:
-        - **sub_string**: Подстрока, которая должна быть включена в описании статей (тип string),
-
-        и один необязательный параметр:
-        - **chunk_size**: количество статей (тип int)
-
-
-     ### В ответ на запрос выозвращается *chunk_size* статей, включающих подстроку *sub_string* в описании статьи
-        -------------
-        По умолчанию параметр **chunk_size** имеет значение 10
-    """
-    return paper_operations.find_sub_string_in_abstract(sub_str=sub_string, chunk_size=chunk_size)
+    return venue_operations.filter(venue_filter=venue_filter, exclude_venue=exclude_venue, chunk_size=chunk_size)
 
 
 @venue_router.get("/total_size", tags=['venue'])
-async def total_size_database_papers():
+async def total_size_database_venues():
     """
-     ## Запрос позвляет получить количество статей в базе данных на данный момент.
+     ## Запрос позвляет получить количество событий в базе данных на данный момент.
     """
-    return paper_operations.total_size()
+    return venue_operations.total_size()
 
 
-@venue_router.get("/venue", tags=['venue'])
-async def venues_database_papers(venue_id: str, chunk_size: int = 10):
+@venue_router.get("/type", tags=['venue'])
+async def type_database_venues(type_id: int, chunk_size: int = 10):
     """
-     ## Запрос позвляет получить несколько статей из базы данных по месту её публикации.
-     Для получения статей по месту их публикации, необходимо передать один обязательный параметр:
-        - **venue_id**: Место публикации статьи (тип string),
+     ## Запрос позвляет получить несколько событий из базы данных по их типу.
+     Для получения событий по их типу, необходимо передать один обязательный параметр:
+        - **type_id**: Тип события (тип string),
 
         и один необязательный параметр:
-        - **chunk_size**: количество статей (тип int)
+        - **chunk_size**: количество событий в выдаче (тип int)
 
 
-     ### В ответ на запрос возвращается *chunk_size* статей, место публикации которых соответствует *venue_id*
+     ### В ответ на запрос возвращается *chunk_size* событий, тип которых соответствует *type_id*
         -------------
         По умолчанию параметр **chunk_size** имеет значение 10
     """
-    return paper_operations.get_papers_by_venue(venue_id=venue_id, chunk_size=chunk_size)
+    return venue_operations.get_venues_by_type(type_id=type_id, chunk_size=chunk_size)
