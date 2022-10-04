@@ -85,18 +85,6 @@ def write_data(pair: tuple[Database, dict]):
                                        update={'$push': {'papers': {'$each': paper_ids}}})
                              for author_id, paper_ids in papers_by_author_id.items()])
 
-    # for paper, paper_authors in authors_by_paper.items():
-    #     try:
-    #         db['author'].insert_many(paper_authors, ordered=False)
-    #     except pymongo.errors.BulkWriteError:
-    #         pass
-    #
-    #     authors_id = [v['_id'] for v in paper_authors]
-    #     db['author'].update_many(filter={'_id': {'$in': authors_id}},
-    #                              update={'$push': {'papers': paper}},
-    #                              upsert=False)
-    # print('+++')
-
 
 def init_database(json_path: str, flush: bool = False,
                   stack_size: int = 1000, parallel_db_writers: int = 2):
