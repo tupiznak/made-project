@@ -104,7 +104,8 @@ def init_database(json_path: str, flush: bool = False,
 
 
 def init_database_fast(jsonl_path: str, flush: bool = False,
-                       stack_size: int = 1000, parallel_db_writers: int = 2):
+                       stack_size: int = 1000, parallel_db_writers: int = 2,
+                       log_period_percent: float = 0.01):
     if flush:
         client.drop_database(citations_db.name)
     citations_db['paper'].create_index('venue')
@@ -125,7 +126,7 @@ def init_database_fast(jsonl_path: str, flush: bool = False,
                     parsed_stack = []
                 curr_objects_count += stack_size * parallel_db_writers
                 progress = curr_objects_count / OBJECTS_COUNT
-                if progress - previous_progress > 0.01:
+                if progress - previous_progress > log_period_percent:
                     previous_progress = progress
                     full_time = datetime.now() - init_time
                     database_init_logger.debug(f'[{full_time}] '
@@ -144,6 +145,8 @@ if __name__ == '__main__':
                         help='is file preprocessed? (correct.txt) [default: True]', required=False)
     parser.add_argument('--stack-size', metavar='stack_size', type=int, default=1000,
                         help='size of chunks of objects pushed to database [default: 1000]', required=False)
+    parser.add_argument('--log-period', metavar='log_period', type=float, default=0.01,
+                        help='period of log in percent [default: 0.01]', required=False)
 
     parser = parser.parse_args()
     if parser.flush:
@@ -154,7 +157,6 @@ if __name__ == '__main__':
     json_parser_logger.setLevel(level=logging.ERROR)
     if parser.preprocessed_file:
         init_database_fast(flush=parser.flush, jsonl_path=parser.file_path,
-                           stack_size=parser.stack_size)
+                           stack_size=parser.stack_size, log_period_percent=parser.log_period)
     else:
-        init_database(flush=parser.flush, json_path=parser.file_path,
-                      stack_size=parser.stack_size)
+        init_database(flush=parser.flush, json_path=parser.file_path, stack_size=parser.stack_size)
