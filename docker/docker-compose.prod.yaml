@@ -42,7 +42,7 @@ services:
   logs-front:
     hostname: logs-front
     container_name: logs-front
-    image: grafana/grafana-oss
+    image: made22t4/logs-front:1.0
     ports:
       - "9000:3000"
 

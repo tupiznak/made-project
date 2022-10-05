@@ -24,14 +24,13 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 1,
   "links": [],
   "liveNow": false,
   "panels": [
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "gYFiefVVz"
+        "uid": "PBFA97CFB590B2093"
       },
       "description": "",
       "fieldConfig": {
@@ -112,34 +111,20 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "gYFiefVVz"
+            "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "builder",
           "expr": "papers_count",
-          "instant": true,
-          "key": "Q-512f965a-5c6a-494a-9703-8183ee9b33c0-0",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "gYFiefVVz"
-          },
-          "editorMode": "builder",
-          "expr": "author_count",
-          "instant": true,
-          "key": "Q-05d284b1-7a99-4d48-a89a-c6cd3a05013e-1",
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "B"
         }
       ],
       "title": "Collections count",
       "type": "timeseries"
     }
   ],
+  "refresh": "5s",
   "schemaVersion": 37,
   "style": "dark",
   "tags": [],
@@ -154,6 +139,6 @@
   "timezone": "",
   "title": "Main dashboard",
   "uid": "sAx6CE4Vk",
-  "version": 2,
+  "version": 1,
   "weekStart": ""
 }

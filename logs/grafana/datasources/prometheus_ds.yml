@@ -1,0 +1,10 @@
+apiVersion: 1
+
+datasources:
+- name: Prometheus
+  access: proxy
+  httpMethod: POST
+  type: prometheus
+  url: http://logs-back:9090
+  jsonData:
+    timeInterval: 3s
