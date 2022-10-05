@@ -1,29 +1,14 @@
 import mongoengine.errors
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from prometheus_client import Gauge
-from starlette_exporter import PrometheusMiddleware, handle_metrics
+from starlette_exporter import PrometheusMiddleware
 
 from app.routes.database import database_router
+from app.routes.metrics import metric_request
 from database.connection import connect
 
-from app.routes.database.paper import paper_operations
-from app.routes.database.author import author_operations
-from app.routes.database.venue import venue_operations
-
 _ = connect
-
-papers_count = Gauge('papers_count', 'Count of papers')
-author_count = Gauge('author_count', 'Count of author')
-venue_count = Gauge('venue_count', 'Count of venue')
-
-
-def metric_request(request: Request):
-    papers_count.set(paper_operations.total_size())
-    author_count.set(author_operations.total_size())
-    venue_count.set(venue_operations.total_size())
-    return handle_metrics(request)
 
 
 app = FastAPI()
