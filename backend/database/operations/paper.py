@@ -72,13 +72,29 @@ class PaperOperations:
         paper = self.get_by_id(_id)
         self.collection.delete_one(dict(_id=paper.id))
 
-    def filter(self, paper_filter: dict, exclude_paper: dict = None, chunk_size: int = 10) -> List[Paper]:
+    def base_filter(self, paper_filter: dict, exclude_paper: dict = None,
+                    chunk_size: int = 10) -> List[Paper]:
         if exclude_paper is None:
             exclude_paper = {}
         exclude_paper = dict((f'{k}__ne', v) for k, v in exclude_paper.items())
         cmd = db.Paper.objects.filter(**(paper_filter | exclude_paper)) \
             .aggregate([{'$sample': {'size': chunk_size}}])
         db_objects = [c for c in cmd]
+        papers = [self.to_model(p) for p in db_objects]
+        return papers
+
+    def filter(self, author: str, venue: str, year_start: int, year_end: int,
+               chunk_size: int = 10) -> List[Paper]:
+        match = {'year': {'$gte': year_start, '$lte': year_end}}
+        if author != '':
+            match['authors'] = author
+        if venue != '':
+            match['venue'] = venue
+        query = self.collection.aggregate([
+            {'$match': match},
+            {'$sample': {'size': chunk_size}}
+        ])
+        db_objects = [o for o in query]
         papers = [self.to_model(p) for p in db_objects]
         return papers
 
