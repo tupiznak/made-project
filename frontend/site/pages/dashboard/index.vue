@@ -89,20 +89,22 @@ v-card
 
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 const search = ref("");
 const config = useRuntimeConfig();
 const filteredPapers = ref([]);
 const yearFilter = ref([1900, 2020]);
-const authorFilter = ref('');
-const venueFilter = ref('');
+const authorFilter = ref("");
+const venueFilter = ref("");
 
-if (config.serverUrl.indexOf("vercel") !== -1) {
-  const currURL = document.URL;
-  const pathArray = currURL.split("/");
-  const gitPath = pathArray[2].slice(8);
-  config.serverUrl = `${pathArray[0]}//made22t4-back${gitPath}`;
-}
+onMounted(() => {
+  if (config.serverUrl.indexOf("vercel") !== -1) {
+    const currURL = document.URL;
+    const pathArray = currURL.split("/");
+    const gitPath = pathArray[2].slice(8);
+    config.serverUrl = `${pathArray[0]}//made22t4-back${gitPath}`;
+  }
+});
 
 const paperAmount = async () => {
   const data = await $fetch(`${config.serverUrl}/database/paper/total_size`);
