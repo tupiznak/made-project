@@ -96,8 +96,9 @@ async def read_database_papers(chunk_size: int = 10):
     return paper_operations.get_chunk(chunk_size=chunk_size)
 
 
-@paper_router.post("/filter", tags=['paper'])
-async def filter_database_papers(paper_filter: dict, exclude_paper: dict = None, chunk_size: int = 10):
+@paper_router.post("/base_filter", tags=['paper'])
+async def base_filter_database_papers(paper_filter: dict, exclude_paper: dict = None,
+                                      chunk_size: int = 10):
     """
      ## Запрос позвляет получить несколько статей из базы данных по определённым условиям.
         Для получения статей с заданными параметрами необходимо передать значение параметров в фильтры:
@@ -113,7 +114,16 @@ async def filter_database_papers(paper_filter: dict, exclude_paper: dict = None,
         -------------
         По умолчанию параметр **chunk_size** имеет значение 10
     """
-    return paper_operations.filter(paper_filter=paper_filter, exclude_paper=exclude_paper, chunk_size=chunk_size)
+    return paper_operations.base_filter(paper_filter=paper_filter,
+                                        exclude_paper=exclude_paper, chunk_size=chunk_size)
+
+
+@paper_router.post("/filter", tags=['paper'])
+async def filter_database_papers(author: str = None, venue: str = None,
+                                 year_start: int = 0, year_end: int = 3000, chunk_size: int = 10):
+    return paper_operations.filter(author=author, venue=venue,
+                                   year_start=year_start, year_end=year_end,
+                                   chunk_size=chunk_size)
 
 
 @paper_router.post("/abstract_substring", tags=['paper'])
