@@ -50,6 +50,12 @@ const paperAmount = async () => {
 };
 
 const find = async () => {
+  if (config.serverUrl.indexOf("vercel") !== -1) {
+    const currURL = document.URL
+    const pathArray = currURL.split("/");
+    const gitPath = pathArray[2].slice(8)
+    config.serverUrl = `${pathArray[0]}//made22t4-back${gitPath}`;
+  }
   const data = await $fetch(
     `${config.serverUrl}/database/paper/abstract_substring?sub_string=${search.value}&chunk_size=10`,
     { method: "POST" }
