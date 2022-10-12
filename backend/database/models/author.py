@@ -8,6 +8,7 @@ class Author(BaseModel):
     gid: str = None
     oid: str = None
     orgid: str = None
+    history: list = None
 
     def __hash__(self):
         return hash(self.id)

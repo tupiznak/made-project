@@ -10,7 +10,7 @@ author_operations = AuthorOperations()
 @author_router.post("/create", tags=['author'])
 async def create_database_author(author: Author):
     """
-     ## Запрос позвляет создавать автора в базе данных со следующими параметрами:
+     ## Запрос позволяет создавать автора в базе данных со следующими параметрами:
 
     - **_id**: Уникальный идентификатор автора (тип string)
     - **name**: Имя автора (тип string)
@@ -26,7 +26,7 @@ async def create_database_author(author: Author):
 @author_router.post("/read", tags=['author'])
 async def read_database_author(_id: str):
     """
-     ## Запрос позвляет получать автора из базы данных со следующими параметрами:
+     ## Запрос позволяет получать автора из базы данных со следующими параметрами:
 
     - **_id**: Уникальный идентификатор автора (тип string)
     - **name**: Имя автора (тип string)
@@ -46,7 +46,7 @@ async def read_database_author(_id: str):
 @author_router.post("/update", tags=['author'])
 async def update_database_author(author: Author):
     """
-     ## Запрос позвляет изменять информацию об авторе в базе данных.
+     ## Запрос позовляет изменять информацию об авторе в базе данных.
         Для изменения статьи необходимо передать следующие параметры:
 
     - **_id**: Уникальный идентификатор автора (тип string)
@@ -64,7 +64,7 @@ async def update_database_author(author: Author):
 @author_router.post("/update/name", tags=['author'])
 async def update_name_database_author(_id: str, name: str):
     """
-     ## Запрос позвляет изменять имя автора из базы данных.
+     ## Запрос позволяет изменять имя автора из базы данных.
         Для изменения имени конкретного автора необходимо передать два обязательных параметра:
 
         - **_id**: Уникальный идентификатор автора (тип string)
@@ -76,7 +76,7 @@ async def update_name_database_author(_id: str, name: str):
 @author_router.post("/delete", tags=['author'])
 async def delete_database_author(_id: str):
     """
-     ## Запрос позвляет удалять автора из базы данных.
+     ## Запрос позволяет удалять автора из базы данных.
         Для удаления конкретного автора из базы данных необходимо передать обязательный параметр:
         - **_id**: Уникальный идентификатор автора (тип string)
     """
@@ -86,7 +86,7 @@ async def delete_database_author(_id: str):
 @author_router.get("/", tags=['author'])
 async def read_database_authors(chunk_size: int = 10):
     """
-     ## Запрос позвляет получить несколько авторов из базы данных.
+     ## Запрос позволяет получить несколько авторов из базы данных.
         Для получения нужного количества авторов необходимо передать необязательный параметр:
         - **chunk_size**: количество авторов в выдаче (тип int)
 
@@ -99,15 +99,15 @@ async def read_database_authors(chunk_size: int = 10):
 @author_router.post("/filter", tags=['author'])
 async def filter_database_authors(author_filter: dict, exclude_author: dict = None, chunk_size: int = 10):
     """
-     ## Запрос позвляет получить несколько авторов из базы данных по определённым условиям.
+     ## Запрос позволяет получить несколько авторов из базы данных по определённым условиям.
         Для получения авторов с заданными параметрами необходимо передать значение параметров в фильтры:
-        - **authir_filter**: фильтр параметров, значение которых должно быть включено в выдачу,
+        - **author_filter**: фильтр параметров, значение которых должно быть включено в выдачу,
         - **exclude_author**: фильтр параметров, значение которых должно быть исключено из выдачи.
 
         Для получения нужного количества авторов необходимо передать необязательный параметр:
         - **chunk_size**: количество авторов (тип int)
 
-     ### В ответ на запрос выозвращается *chunk_size* авторов, параметры которых включют параметры из *author_filter* и
+     ### В ответ на запрос возвращается *chunk_size* авторов, параметры которых включают параметры из *author_filter* и
      ### исключают параметры из *exclude_author*
 
         -------------
@@ -119,7 +119,7 @@ async def filter_database_authors(author_filter: dict, exclude_author: dict = No
 @author_router.get("/total_size", tags=['author'])
 async def total_size_database_authors():
     """
-     ## Запрос позвляет получить количество авторов в базе данных на данный момент.
+     ## Запрос позволяет получить количество авторов в базе данных на данный момент.
     """
     return author_operations.total_size()
 
@@ -127,7 +127,7 @@ async def total_size_database_authors():
 @author_router.get("/org", tags=['author'])
 async def orgs_database_authors(org_id: str, chunk_size: int = 10):
     """
-     ## Запрос позвляет получить несколько авторов из конкретной организации.
+     ## Запрос позволяет получить несколько авторов из конкретной организации.
      Для получения авторов из конкретной организации, необходимо передать один обязательный параметр:
         - **org_id**: Название организации (тип string),
 
@@ -140,3 +140,28 @@ async def orgs_database_authors(org_id: str, chunk_size: int = 10):
         По умолчанию параметр **chunk_size** имеет значение 10
     """
     return author_operations.get_authors_by_org(org_id=org_id, chunk_size=chunk_size)
+
+
+@author_router.post("/update/like", tags=['author'])
+async def update_like_database_author(_id: str, paper_id: str):
+    """
+     ## Запрос позволяет добавить лайк на конкретную статью базы данных.
+        Для добавления лайка пользователем необходимо передать два обязательных параметра:
+
+        - **_id**: Уникальный идентификатор автора (тип string)
+        - **paper_id**: Уникальный идентификатор статью, которая понравилась пользователю (тип string)
+    """
+    return author_operations.like(paper_id, _id)
+
+
+@author_router.post("/update/like", tags=['author'])
+async def get_history_database_author(_id: str):
+    """
+     ## Запрос позволяет получить историю действий автора из базы данных.
+        Для получения истории действий автора необходимо передать один обязательный параметр:
+
+        - **_id**: Уникальный идентификатор автора (тип string)
+
+        ### В ответ на запрос возвращается список объектов, представляющих собой историю действий пользвателя
+    """
+    return author_operations.get_history(_id)
