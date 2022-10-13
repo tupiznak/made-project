@@ -87,5 +87,10 @@ def test_like(author_operations):
     time_like_2 = datetime.now().timestamp()
     history = [HistoryObject(event='like', time=time_like_1, description=paper_id_1),
                HistoryObject(event='like', time=time_like_2, description=paper_id_2)]
-    assert author_operations.get_liked_papers(author.id) == [paper_id_1, paper_id_2]
-    assert author_operations.get_history(author.id) == history
+    ao_likes = author_operations.get_liked_papers(author.id)
+    ao_hist = author_operations.get_history(author.id)
+    assert ao_likes == [paper_id_1, paper_id_2]
+    assert [ao_hist[0].event, ao_hist[1].event] == [history[0].event, history[0].event]
+    assert [ao_hist[0].description, ao_hist[1].description] == [history[0].description, history[1].description]
+    assert history[0].time - ao_hist[0].time <= 1
+    assert history[1].time - ao_hist[1].time <= 1
