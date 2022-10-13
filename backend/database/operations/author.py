@@ -104,17 +104,18 @@ class AuthorOperations:
         authors = [self.to_model(p) for p in db_objects]
         return authors
 
-    def like(self, paper_id: str, _id: str) -> Author:
+    def like(self, paper_id: str, _id: str):
         db_author = self.find(_id)
         db_author.history.append(db.HistoryObject(
             event=paper_id, event_time=datetime.now(),
             event_description=f'like at paper {paper_id}'))
         db_author.save()
-        return self.to_model(db_author)
+        return db_author
 
-    def get_history(self, _id : str) -> List:
+    def get_history(self, _id: str) -> List:
         db_author = self.find(_id)
-        return db_author.history
+        return [event.to_mongo() for event in db_author.history]
+
 
 if __name__ == '__main__':
     pass

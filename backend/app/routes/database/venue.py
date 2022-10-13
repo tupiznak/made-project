@@ -10,7 +10,7 @@ venue_operations = VenueOperations()
 @venue_router.post("/create", tags=['venue'])
 async def create_database_venue(venue: Venue):
     """
-     ## Запрос позвоadляет создавать событие в базе данных со следующими параметрами:
+     ## Запрос позволяет создавать событие в базе данных со следующими параметрами:
 
     - **_id**: Уникальный идентификатор события (тип string)
     - **name_d**: Наименование события (тип string)

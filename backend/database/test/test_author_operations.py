@@ -1,5 +1,6 @@
 import mongoengine.errors
 import pytest
+from datetime import datetime, timedelta
 
 import database.connection
 from database.models.author import Author
@@ -73,3 +74,17 @@ def test_count(author_operations, some_data):
 def test_authors_by_org(author_operations, some_data):
     assert set(author_operations.get_authors_by_org(org_id='grtgrt', chunk_size=10)) == \
            {some_data[0], some_data[2]}
+
+
+def test_like(author_operations):
+    author = Author(_id='qwertyu', name='gtrgdtg', org='grtgrt', oid='123')
+    author_operations.create(author)
+    paper_id_1 = 'qwerty'
+    paper_id_2 = 'zxc'
+    author_operations.like(paper_id_1, author.id)
+    time_like_1 = datetime.now()
+    author_operations.like(paper_id_2, author.id)
+    assert author_operations.get_history(author.id)[0]['event'] == paper_id_1
+    assert author_operations.get_history(author.id)[1]['event'] == paper_id_2
+    assert author_operations.get_history(author.id)[1]['event_description'] == f'like at paper {paper_id_2}'
+    assert time_like_1 - author_operations.get_history(author.id)[0]['event_time'] < timedelta(seconds=0.01)
