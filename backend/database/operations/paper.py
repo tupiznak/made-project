@@ -22,8 +22,7 @@ class PaperOperations:
     def to_model(self, db_paper: Union[db.Paper, dict]) -> Paper:
         if isinstance(db_paper, db.Paper):
             return Paper.parse_raw(db_paper.to_json())
-        else:
-            return Paper.parse_obj(db_paper)
+        return Paper.parse_obj(db_paper)  # else case
 
     def replace_id(self, paper: dict):
         paper['_id'] = paper['id']
@@ -124,6 +123,16 @@ class PaperOperations:
         db_objects = [o for o in query]
         papers = [self.to_model(p) for p in db_objects]
         return papers
+    
+    def get_n_citations(self, paper_id: str):
+        """
+        :type paper_id: str
+        :type return: int
+
+        # Function returns n_citations of the paper by its paper_id
+        """
+        db_paper = self.find(paper_id)  # Paper(Document)
+        return db_paper.n_citation
 
 
 if __name__ == '__main__':
