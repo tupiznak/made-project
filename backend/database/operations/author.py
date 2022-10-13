@@ -19,7 +19,7 @@ class AuthorOperations:
     def flush(self):
         self.db.drop_collection('author')
 
-    def to_model(self, db_author: Union[db.Author, db.HistoryObject, dict]) -> Author | HistoryObject:
+    def to_model(self, db_author: Union[db.Author, dict]) -> Author:
         if isinstance(db_author, db.Author):
             return Author.parse_raw(db_author.to_json())
         else:
