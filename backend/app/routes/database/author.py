@@ -42,7 +42,7 @@ async def read_database_author(_id: str):
      ### Для получения автора из базы данных необходимо передать обязательный параметр:
      - **_id**: Уникальный идентификатор автора (тип string)
     """
-    return author_operations.get_by_id(_id=_id)
+    return author_operations.get_by_id(_id)
 
 
 @author_router.post("/update", tags=['author'])
@@ -73,7 +73,7 @@ async def update_name_database_author(_id: str, name: str):
         - **_id**: Уникальный идентификатор автора (тип string)
         - **name**: Новое имя автора (тип string)
     """
-    return author_operations.change_name(_id, name)
+    return author_operations.change_name(_id=_id, name=name)
 
 
 @author_router.post("/delete", tags=['author'])
@@ -154,7 +154,7 @@ async def update_like_database_author(_id: str, paper_id: str):
         - **_id**: Уникальный идентификатор автора (тип string)
         - **paper_id**: Уникальный идентификатор статьи, которая понравилась пользователю (тип string)
     """
-    return author_operations.like(paper_id, _id)
+    return author_operations.like(paper_id=paper_id, _id=_id)
 
 
 @author_router.get("/history", tags=['author'])
@@ -168,3 +168,16 @@ async def get_history_database_author(_id: str):
         ### В ответ на запрос возвращается список объектов, представляющих собой действия пользователя
     """
     return author_operations.get_history(_id)
+
+
+@author_router.get("/liked papers", tags=['author'])
+async def get_author_liked_papers(_id: str):
+    """
+     ## Запрос позволяет получить из базы данных список статей, понравившихся автору.
+        Для получения списка статей, понравившихся автору, необходимо передать один обязательный параметр:
+
+        - **_id**: Уникальный идентификатор автора (тип string)
+
+        ### В ответ на запрос возвращается список статей, понравившихся автору
+    """
+    return author_operations.get_liked_papers(_id)

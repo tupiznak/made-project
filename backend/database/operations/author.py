@@ -1,12 +1,10 @@
 from typing import List, Union
 
 import database.db_objects.author as db
-from database.models.author import *
 from database.connection import citations_db
-# from mongoengine import QuerySet
 from pymongo.database import Database
 
-from datetime import datetime
+from database.models.author import Author, HistoryObject
 
 
 class AuthorOperations:
@@ -21,7 +19,7 @@ class AuthorOperations:
     def flush(self):
         self.db.drop_collection('author')
 
-    def to_model(self, db_author: Union[db.Author, dict]) -> Author:
+    def to_model(self, db_author: Union[db.Author, db.HistoryObject, dict]) -> Author | HistoryObject:
         if isinstance(db_author, db.Author):
             return Author.parse_raw(db_author.to_json())
         else:
@@ -104,17 +102,19 @@ class AuthorOperations:
         authors = [self.to_model(p) for p in db_objects]
         return authors
 
-    def like(self, paper_id: str, _id: str):
+    def like(self, paper_id: str, _id: str) -> Author:
         db_author = self.find(_id)
-        db_author.history.append(db.HistoryObject(
-            event=paper_id, event_time=datetime.now(),
-            event_description=f'like at paper {paper_id}'))
+        db_author.history.append(db.HistoryObject.create_like_object(paper_id=paper_id))
         db_author.save()
-        return db_author
+        return self.to_model(db_author)
 
-    def get_history(self, _id: str) -> List:
+    def get_history(self, _id: str) -> list[HistoryObject]:
         db_author = self.find(_id)
-        return [event.to_mongo() for event in db_author.history]
+        return [HistoryObject.parse_raw(event.to_json()) for event in db_author.history]
+
+    def get_liked_papers(self, _id: str) -> list[str]:
+        db_author = self.find(_id)
+        return [HistoryObject.parse_raw(ev.to_json()).description for ev in db_author.history if ev.event == 'like']
 
 
 if __name__ == '__main__':

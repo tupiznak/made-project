@@ -1,11 +1,10 @@
 from pydantic import BaseModel, Field
-from datetime import datetime
 
 
 class HistoryObject(BaseModel):
-    event: str = None
-    event_time: datetime = None
-    event_description: str = None
+    event: str
+    time: int
+    description: str
 
 
 class Author(BaseModel):

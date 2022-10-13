@@ -1,9 +1,9 @@
 import mongoengine.errors
 import pytest
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import database.connection
-from database.models.author import Author
+from database.models.author import Author, HistoryObject
 from database.operations.author import AuthorOperations
 
 
@@ -82,9 +82,10 @@ def test_like(author_operations):
     paper_id_1 = 'qwerty'
     paper_id_2 = 'zxc'
     author_operations.like(paper_id_1, author.id)
-    time_like_1 = datetime.now()
+    time_like_1 = datetime.now().timestamp()
     author_operations.like(paper_id_2, author.id)
-    assert author_operations.get_history(author.id)[0]['event'] == paper_id_1
-    assert author_operations.get_history(author.id)[1]['event'] == paper_id_2
-    assert author_operations.get_history(author.id)[1]['event_description'] == f'like at paper {paper_id_2}'
-    assert time_like_1 - author_operations.get_history(author.id)[0]['event_time'] < timedelta(seconds=0.01)
+    time_like_2 = datetime.now().timestamp()
+    history = [HistoryObject(event='like', time=time_like_1, description=paper_id_1),
+               HistoryObject(event='like', time=time_like_2, description=paper_id_2)]
+    assert author_operations.get_liked_papers(author.id) == [paper_id_1, paper_id_2]
+    assert author_operations.get_history(author.id) == history

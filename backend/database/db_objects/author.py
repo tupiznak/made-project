@@ -1,10 +1,17 @@
 from mongoengine import *
+from datetime import datetime
 
 
 class HistoryObject(EmbeddedDocument):
     event = StringField()
-    event_time = DateTimeField()
-    event_description = StringField()
+    time = IntField()
+    description = StringField()
+
+    @classmethod
+    def create_like_object(cls, paper_id: str):
+        return cls(event='like',
+                   time=datetime.now().timestamp(),
+                   description=paper_id)
 
 
 class Author(Document):
