@@ -22,24 +22,28 @@ def pos_tagger(nltk_tag):
     else:
         return None
 
+
 def remove_punct(text):
-    table = {33: ' ', 34: ' ', 35: ' ', 36: ' ', 37: ' ', 38: ' ', 39: ' ', 40: ' ', 41: ' ', 42: ' ', 43: ' ', 44: ' ', 45: ' ', 46: ' ', 47: ' ', 58: ' ', 59: ' ', 60: ' ', 61: ' ', 62: ' ', 63: ' ', 64: ' ', 91: ' ', 92: ' ', 93: ' ', 94: ' ', 95: ' ', 96: ' ', 123: ' ', 124: ' ', 125: ' ', 126: ' '}
+    table = {33: ' ', 34: ' ', 35: ' ', 36: ' ', 37: ' ', 38: ' ', 39: ' ', 40: ' ', 41: ' ', 42: ' ', 43: ' ', 44: ' ',
+        45: ' ', 46: ' ', 47: ' ', 58: ' ', 59: ' ', 60: ' ', 61: ' ', 62: ' ', 63: ' ', 64: ' ', 91: ' ', 92: ' ', 93: ' ',
+        94: ' ', 95: ' ', 96: ' ', 123: ' ', 124: ' ', 125: ' ', 126: ' '}
     return text.translate(table)
+
 
 def preprocess(data):
     data = map(lambda x: x.lower(), data)
     data = map(lambda x: remove_punct(x), data)
     data = map(lambda x: re.sub(r'\d+', ' ', x), data)
-    
+
     data = map(lambda x: x.split(' '), data)
     data = map(lambda x: [token for token in x if token not in english_stopwords\
                                                                       and token != " " \
                                                                       and token.strip() not in punctuation], data)
-    
+
     data = map(lambda x: ' '.join(x), data)
-    
+
     data = list(data)
-    
+
     result = []
     for every in data:
         pos_tagged = nltk.pos_tag(nltk.word_tokenize(every))
@@ -54,12 +58,12 @@ def preprocess(data):
         lemmatized_sentence = " ".join(lemmatized_sentence)
 
         result.append(lemmatized_sentence)
-    
+
     return result
 
 
-model = models.LdaModel.load('lda.model')
-dictionary = corpora.Dictionary.load("dictionary.dict")
+model = models.LdaModel.load(MODEL_PATH)
+dictionary = corpora.Dictionary.load(DICTIONARY_PATH)
 
 
 def inference(abstracts: List[str]) -> List[Tuple[int, float]]:
