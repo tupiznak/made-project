@@ -11,5 +11,16 @@ export default defineNuxtConfig({
   },
   publicRuntimeConfig: {
     serverUrl: process.env.SERVER_URL || 'http://127.0.0.1:8888',
+  },
+  auth: {
+    strategies: {
+      local: {
+        endpoints: {
+          login: { url: 'login', method: 'post', propertyName: 'data.token' },
+          user: { url: 'dashboard', method: 'get', propertyName: 'data' },
+          logout: false
+        }
+      }
+    }
   }
 })

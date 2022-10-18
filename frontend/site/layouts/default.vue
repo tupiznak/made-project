@@ -1,4 +1,6 @@
-<template lang='pug'>
-v-app
-  slot
+<template>
+<v-app>
+  <Navigation/>
+  <slot/>
+</v-app>
 </template>
