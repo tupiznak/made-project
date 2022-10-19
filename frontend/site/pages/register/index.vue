@@ -39,12 +39,37 @@ export default {
   },
   methods: {
     async register() {
-      const author = new Author(this._id, this.name, this.org, this.gid, this.oid, this.orgid)
-      const config = useRuntimeConfig()
-      const data = await $fetch(`${config.serverUrl}/database/author/create?author=${author}`,
-          { method: 'POST'})
-      console.log(data)
-    }
+      try {
+        const router = useRouter()
+        const config = useRuntimeConfig()
+
+        const author = new Author(this.id, this.name, this.org, this.gid, this.oid, this.orgid)
+        const data = await $fetch(`${config.serverUrl}/database/author/create`, {
+          headers: {
+            'accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+          method: 'POST',
+          body: JSON.stringify(author)
+        })
+
+        if (process.client) {
+          localStorage.setItem('isAuthenticated', true)
+          localStorage.setItem('user', JSON.stringify(data))
+
+          window.dispatchEvent(new CustomEvent('user-localstorage-changed', {
+            detail: {
+              isAuth: localStorage.getItem('isAuthenticated'),
+              user: localStorage.getItem('user')
+            }
+          }));
+        }
+
+        router.push({ path: "/" });
+      } catch (e) {
+        console.error(e);
+      }
+    },
   }
 }
 </script>

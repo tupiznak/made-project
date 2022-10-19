@@ -27,11 +27,30 @@ export default {
   },
   methods: {
     async login() {
-      const config = useRuntimeConfig()
-      const data = await $fetch(
-          `${config.serverUrl}/database/author/read?_id=${this.authorId}`,
-          { method: "POST" })
-      console.log(data)
+      try {
+        const router = useRouter()
+        const config = useRuntimeConfig()
+
+        const data = await $fetch(
+            `${config.serverUrl}/database/author/read?_id=${this.authorId}`,
+            { method: "POST" })
+
+        if (process.client) {
+          localStorage.setItem('isAuthenticated', true)
+          localStorage.setItem('user', JSON.stringify(data))
+
+          window.dispatchEvent(new CustomEvent('user-localstorage-changed', {
+            detail: {
+              isAuth: localStorage.getItem('isAuthenticated'),
+              user: localStorage.getItem('user')
+            }
+          }));
+        }
+
+        router.push({ path: "/" });
+      } catch (e) {
+        console.error(e);
+      }
     }
   }
 }
