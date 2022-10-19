@@ -5,6 +5,7 @@ from database.connection import citations_db
 from pymongo.database import Database
 
 from database.models.author import Author, HistoryObject
+from database.operations.paper import PaperOperations
 
 
 class AuthorOperations:
@@ -103,18 +104,22 @@ class AuthorOperations:
         return authors
 
     def like(self, paper_id: str, _id: str) -> Author:
-        db_author = self.find(_id)
-        db_author.history.append(db.HistoryObject.create_like_object(paper_id=paper_id))
-        db_author.save()
-        return self.to_model(db_author)
+        paper_operations = PaperOperations()
+        paper_exist = paper_operations.find(paper_id)
+        if paper_exist:
+            db_author = self.find(_id)
+            db_author.history.append(db.HistoryObject.create_like_object(paper_id=paper_id))
+            db_author.save()
+            return self.to_model(db_author)
 
     def get_history(self, _id: str) -> list[HistoryObject]:
         db_author = self.find(_id)
         return [HistoryObject.parse_raw(event.to_json()) for event in db_author.history]
 
     def get_liked_papers(self, _id: str) -> list[str]:
-        db_author = self.find(_id)
-        return [HistoryObject.parse_raw(ev.to_json()).description for ev in db_author.history if ev.event == 'like']
+        history = self.get_history(_id=_id)
+        liked_papers = list(map(lambda x: x.description, filter(lambda x: x.event == 'like', history)))
+        return liked_papers
 
 
 if __name__ == '__main__':
