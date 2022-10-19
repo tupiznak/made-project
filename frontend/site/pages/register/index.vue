@@ -5,12 +5,12 @@
       <v-card-subtitle class="title black--text pa-1">
         Register
       </v-card-subtitle>
-      <v-text-field color="black" label="Author ID" class="text-field" v-model="id"></v-text-field>
-      <v-text-field color="black" label="Name" class="text-field" v-model="name"></v-text-field>
-      <v-text-field color="black" label="Organization" class="text-field" v-model="org"></v-text-field>
-      <v-text-field color="black" label="Gid" class="text-field" v-model="gid"></v-text-field>
-      <v-text-field color="black" label="Oid" class="text-field" v-model="oid"></v-text-field>
-      <v-text-field color="black" label="Organization ID" class="text-field" v-model="orgid"></v-text-field>
+      <v-text-field color="black" label="Author ID" class="text-field" v-model="author._id"></v-text-field>
+      <v-text-field color="black" label="Name" class="text-field" v-model="author.name"></v-text-field>
+      <v-text-field color="black" label="Organization" class="text-field" v-model="author.org"></v-text-field>
+      <v-text-field color="black" label="Gid" class="text-field" v-model="author.gid"></v-text-field>
+      <v-text-field color="black" label="Oid" class="text-field" v-model="author.oid"></v-text-field>
+      <v-text-field color="black" label="Organization ID" class="text-field" v-model="author.orgid"></v-text-field>
       <v-card-actions>
         <v-btn color="black" dark block rounded @click="register">
           Register
@@ -29,12 +29,7 @@ import {Author} from "../../models/author";
 export default {
   data() {
     return {
-      id: '',
-      name: '',
-      org: '',
-      gid: '',
-      oid: '',
-      orgid: ''
+      author: new Author('', '', '', '', '', '')
     }
   },
   methods: {
@@ -43,14 +38,13 @@ export default {
         const router = useRouter()
         const config = useRuntimeConfig()
 
-        const author = new Author(this.id, this.name, this.org, this.gid, this.oid, this.orgid)
         const data = await $fetch(`${config.serverUrl}/database/author/create`, {
           headers: {
             'accept': 'application/json',
             'Content-Type': 'application/json',
           },
           method: 'POST',
-          body: JSON.stringify(author)
+          body: JSON.stringify(this.author)
         })
 
         if (process.client) {
