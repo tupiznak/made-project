@@ -20,19 +20,16 @@ v-container
 <script setup>
 import { onMounted, ref } from "vue";
 import {ConfigSetup} from "../services/ConfigSetup";
+import {LocalStorage} from "../services/LocalStorage";
 const paperCount = ref("---");
 const authorCount = ref("---");
 const venueCount = ref("---");
 const configSetup = new ConfigSetup();
 const config = configSetup.setup();
-const router = useRouter();
+const localStorageService = new LocalStorage();
 
 onMounted(() => {
-  if (process.client) {
-    if (!localStorage.getItem('isAuthenticated')) {
-      router.push({ path: "/login" });
-    }
-  }
+  localStorageService.pushToLoginIfNotAuthenticated()
 });
 
 const paperAmount = async () => {

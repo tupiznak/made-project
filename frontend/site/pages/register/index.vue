@@ -26,14 +26,17 @@
 <script>
 import {Author} from "../../models/author";
 import {ConfigSetup} from "../../services/ConfigSetup";
+import {LocalStorage} from "../../services/LocalStorage";
 
 export default {
   setup() {
     const configSetup = new ConfigSetup()
+    const localStorageService = new LocalStorage()
     const config = configSetup.setup()
     const router = useRouter();
     return {
       config,
+      localStorageService,
       router
     }
   },
@@ -54,18 +57,9 @@ export default {
           body: JSON.stringify(this.author)
         })
 
-        if (process.client) {
-          localStorage.setItem('isAuthenticated', true)
-          localStorage.setItem('user', JSON.stringify(data))
-
-          window.dispatchEvent(new CustomEvent('user-localstorage-changed', {
-            detail: {
-              isAuth: localStorage.getItem('isAuthenticated'),
-              user: localStorage.getItem('user')
-            }
-          }));
-        }
-
+        this.localStorageService.setUser(data)
+        this.localStorageService.setIsAuthenticated(true)
+        this.localStorageService.raiseLocalstorageChangedEvent()
         this.router.push({ path: "/" });
       } catch (e) {
         console.error(e);

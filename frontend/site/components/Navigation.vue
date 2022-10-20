@@ -32,13 +32,21 @@
 </template>
 
 <script>
+import {ConfigSetup} from "../services/ConfigSetup";
+import {LocalStorage} from "../services/LocalStorage";
+
 export default {
+  setup() {
+    const localStorageService = new LocalStorage()
+    return {
+      localStorageService
+    }
+  },
   name: "Navigation",
   mounted() {
-    if (process.client) {
-      this.isAuthenticated = localStorage.getItem('isAuthenticated')
-      this.user = JSON.parse(localStorage.getItem('user'))
-    }
+    this.isAuthenticated = this.localStorageService.getIsAuthenticated()
+    this.user = this.localStorageService.getUser()
+
     window.addEventListener('user-localstorage-changed', (event) => {
       this.isAuthenticated = event.detail.isAuth;
       this.user = JSON.parse(event.detail.user);

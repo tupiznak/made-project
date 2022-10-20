@@ -32,22 +32,20 @@
 </template>
 
 <script>
+import {LocalStorage} from "../../services/LocalStorage";
+
 export default {
   setup() {
-    const router = useRouter()
+    const localStorageService = new LocalStorage()
     return {
-      router
+      localStorageService
     }
   },
   beforeCreate() {
-    if (process.client) {
-      if (!localStorage.getItem('isAuthenticated')) {
-        this.router.push({ path: "/login" });
-      }
-      else {
-        this.user = JSON.parse(localStorage.getItem('user'))
-      }
-    }
+    this.localStorageService.pushToLoginIfNotAuthenticated()
+  },
+  mounted() {
+    this.user = this.localStorageService.getUser()
   },
   data () {
     return {
@@ -56,17 +54,10 @@ export default {
   },
   methods: {
     logout() {
-      localStorage.removeItem('isAuthenticated')
-      localStorage.removeItem('user')
-
-      window.dispatchEvent(new CustomEvent('user-localstorage-changed', {
-        detail: {
-          isAuth: false,
-          user: null
-        }
-      }));
-
-      this.router.push({ path: "/login" });
+      this.localStorageService.removeUser()
+      this.localStorageService.removeIsAuthenticated()
+      this.localStorageService.raiseLocalstorageChangedEvent()
+      this.localStorageService.pushToLoginIfNotAuthenticated()
     }
   }
 }
