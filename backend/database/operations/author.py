@@ -1,10 +1,12 @@
 from typing import List, Union
 
 import database.db_objects.author as db
-from database.models.author import *
 from database.connection import citations_db
-# from mongoengine import QuerySet
 from pymongo.database import Database
+from fastapi import HTTPException
+
+from database.models.author import Author, HistoryObject
+from database.operations.paper import PaperOperations
 
 
 class AuthorOperations:
@@ -102,6 +104,44 @@ class AuthorOperations:
         authors = [self.to_model(p) for p in db_objects]
         return authors
 
+    def like(self, paper_id: str, _id: str) -> Author:
+        paper_operations = PaperOperations()
+        paper_exist = paper_operations.find(paper_id)
+        if paper_exist:
+            db_author = self.find(_id)
+            if paper_id not in map(lambda x: x.description, filter(lambda x: x.event == 'like', db_author.history)):
+                db_author.history.append(db.HistoryObject.create_like_object(paper_id=paper_id))
+                db_author.save()
+                return self.to_model(db_author)
+            else:
+                raise HTTPException(
+                    status_code=409,
+                    detail='like object exist',
+                )
 
-if __name__ == '__main__':
-    pass
+    def delete_like(self, paper_id: str, _id: str) -> Author:
+        db_author = self.find(_id)
+        paper_operations = PaperOperations()
+        paper_exist = paper_operations.find(paper_id)
+        if paper_exist:
+            if paper_id in map(lambda x: x.description, filter(lambda x: x.event == 'like', db_author.history)):
+                self.collection.find_one_and_update({"_id": _id},
+                                                    {"$pull": {'history': {"description": paper_id}}}, upsert=False)
+                return self.to_model(db_author)
+            else:
+                raise HTTPException(
+                    status_code=404,
+                    detail='like object not found',
+                )
+
+    def get_history(self, _id: str) -> list[HistoryObject]:
+        db_author = self.find(_id)
+        return [HistoryObject.parse_raw(event.to_json()) for event in db_author.history]
+
+    def get_liked_papers(self, _id: str) -> list[str]:
+        history = self.get_history(_id=_id)
+        liked_papers = list(map(lambda x: x.description, filter(lambda x: x.event == 'like', history)))
+        return liked_papers
+
+    if __name__ == '__main__':
+        pass
