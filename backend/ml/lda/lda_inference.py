@@ -1,13 +1,13 @@
-import os
+import re
+from string import punctuation
+from typing import List, Tuple
 
 import nltk
+from gensim import corpora, models
 from nltk.corpus import stopwords, wordnet
 from nltk.stem import WordNetLemmatizer
-from string import punctuation
-from gensim import corpora, models
+
 from ml.lda.config import MODEL_PATH, DICTIONARY_PATH, id2topic
-from typing import List, Tuple
-import re
 
 english_stopwords = stopwords.words("english")
 lemmatizer = WordNetLemmatizer()
@@ -67,7 +67,6 @@ def preprocess(data):
     return result
 
 
-print(os.system(f'tail {MODEL_PATH}'))
 model = models.LdaModel.load(MODEL_PATH)
 dictionary = corpora.Dictionary.load(DICTIONARY_PATH)
 
