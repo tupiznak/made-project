@@ -8,6 +8,7 @@ from gensim import corpora, models
 from ml.lda.config import MODEL_PATH, DICTIONARY_PATH, id2topic
 from typing import List, Tuple
 import re
+
 english_stopwords = stopwords.words("english")
 lemmatizer = WordNetLemmatizer()
 
@@ -64,6 +65,7 @@ def preprocess(data):
         result.append(lemmatized_sentence)
 
     return result
+
 
 print(MODEL_PATH)
 print(os.system(f'ls -al {MODEL_PATH}'))
