@@ -70,6 +70,7 @@ def preprocess(data):
 print(MODEL_PATH)
 print(os.system(f'ls -al {MODEL_PATH}'))
 print(os.system(f'md5sum {MODEL_PATH}'))
+print(os.system(f'md5sum {__file__}'))
 model = models.LdaModel.load(MODEL_PATH)
 dictionary = corpora.Dictionary.load(DICTIONARY_PATH)
 
