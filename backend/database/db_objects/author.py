@@ -22,5 +22,6 @@ class Author(Document):
     oid = StringField()
     orgid = StringField()
     papers = ListField(StringField())
+    history = EmbeddedDocumentListField(HistoryObject)
 
     meta = {'strict': False, 'db_alias': 'citations'}

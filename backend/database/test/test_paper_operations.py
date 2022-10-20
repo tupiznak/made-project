@@ -26,9 +26,8 @@ def some_data(paper_operations):
 
 
 def test_crud(paper_operations):
-    paper = Paper(_id='q', title='gtrgdtg', abstract='grtgrt', venue='123')
+    paper = Paper(_id='q', title='gtrgdtg', abstract='grtgrt', venue='123', authors=['author1', 'author2'])
     paper_operations.model_to_db(paper_operations.to_model(paper_operations.model_to_db(paper)))
-
     paper_operations.create(paper)
     with pytest.raises(mongoengine.errors.NotUniqueError):
         paper_operations.create(paper)
