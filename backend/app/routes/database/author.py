@@ -152,9 +152,21 @@ async def update_like_database_author(_id: str, paper_id: str):
         Для добавления лайка у автора необходимо передать два обязательных параметра:
 
         - **_id**: Уникальный идентификатор автора (тип string)
-        - **paper_id**: Уникальный идентификатор статьи, которая понравилась пользователю (тип string)
+        - **paper_id**: Уникальный идентификатор статьи, которая понравилась автору (тип string)
     """
     return author_operations.like(paper_id=paper_id, _id=_id)
+
+
+@author_router.post("/update/unlike", tags=['author'])
+async def update_unlike_database_author(_id: str, paper_id: str):
+    """
+     ## Запрос позволяет удалить запись в базе данных о том что автору понравилась статья.
+        Для удаления лайка у автора необходимо передать два обязательных параметра:
+
+        - **_id**: Уникальный идентификатор автора (тип string)
+        - **paper_id**: Уникальный идентификатор статьи, которая понравилась автору (тип string)
+    """
+    return author_operations.delete_like(paper_id=paper_id, _id=_id)
 
 
 @author_router.get("/history", tags=['author'])
@@ -170,7 +182,7 @@ async def get_history_database_author(_id: str):
     return author_operations.get_history(_id)
 
 
-@author_router.get("/liked papers", tags=['author'])
+@author_router.get("/liked_papers", tags=['author'])
 async def get_author_liked_papers(_id: str):
     """
      ## Запрос позволяет получить из базы данных список статей, понравившихся автору.

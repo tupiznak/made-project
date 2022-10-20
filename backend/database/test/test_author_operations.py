@@ -119,3 +119,24 @@ def test_like_missing_paper(author_operations, paper_operations):
     with pytest.raises(database.db_objects.paper.DoesNotExist) as excinfo:
         author_operations.like(missing_paper_id, author.id)
     assert "Paper matching query does not exist." in str(excinfo.value)
+
+
+# def test_delete_like(author_operations, paper_operations):
+#     author = Author(_id='qwertyu', name='gtrgdtg', org='grtgrt', oid='123', papers=['asdf', 'zxcv'],
+#                     history=[])
+#     paper_1 = Paper(_id='qwerty', title='asdf', abstract='jkl', year=2012, authors=['ss', 'dd'])
+#     paper_2 = Paper(_id='zxc', title='asdfs', abstract='jklww', year=2011, authors=['sns', 'ddn'])
+#     paper_operations.create(paper_1)
+#     paper_operations.create(paper_2)
+#     author_operations.create(author)
+#     author_operations.like(paper_id=paper_1.id, _id=author.id)
+#     author_operations.like(paper_id=paper_2.id, _id=author.id)
+#     time_like_2 = datetime.now().timestamp()
+#     author_operations.delete_like(paper_id=paper_1.id, _id=author.id)
+#     history = [HistoryObject(event='like', time=time_like_2, description=paper_2.id)]
+#     ao_likes = author_operations.get_liked_papers(author.id)
+#     ao_hist = author_operations.get_history(author.id)
+#     assert ao_likes == [paper_2.id]
+#     assert ao_hist[0].event == history[0].event
+#     assert ao_hist[0].description == history[0].description
+#     assert history[0].time - ao_hist[0].time <= 1
