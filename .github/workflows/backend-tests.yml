@@ -26,7 +26,7 @@ jobs:
           mongodb-version: ${{ matrix.mongodb-version }}
       - name: Install dependencies
         run: |
-          apt install git-lfs
+          sudo apt install -y git-lfs
           pip install -r backend/requirements.txt
       - name: Install ML dependencies
         run: |
