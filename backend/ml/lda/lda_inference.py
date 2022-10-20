@@ -67,6 +67,7 @@ def preprocess(data):
     return result
 
 
+print(os.system(f'tail {MODEL_PATH}'))
 model = models.LdaModel.load(MODEL_PATH)
 dictionary = corpora.Dictionary.load(DICTIONARY_PATH)
 
