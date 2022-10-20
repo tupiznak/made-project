@@ -25,8 +25,18 @@
 
 <script>
 import {Author} from "../../models/author";
+import {ConfigSetup} from "../../services/ConfigSetup";
 
 export default {
+  setup() {
+    const configSetup = new ConfigSetup()
+    const config = configSetup.setup()
+    const router = useRouter();
+    return {
+      config,
+      router
+    }
+  },
   data() {
     return {
       author: new Author('', '', '', '', '', '')
@@ -35,10 +45,7 @@ export default {
   methods: {
     async register() {
       try {
-        const router = useRouter()
-        const config = useRuntimeConfig()
-
-        const data = await $fetch(`${config.serverUrl}/database/author/create`, {
+        const data = await $fetch(`${this.config.serverUrl}/database/author/create`, {
           headers: {
             'accept': 'application/json',
             'Content-Type': 'application/json',
@@ -59,7 +66,7 @@ export default {
           }));
         }
 
-        router.push({ path: "/" });
+        this.router.push({ path: "/" });
       } catch (e) {
         console.error(e);
       }

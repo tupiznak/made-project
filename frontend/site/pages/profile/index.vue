@@ -33,24 +33,25 @@
 
 <script>
 export default {
+  setup() {
+    const router = useRouter()
+    return {
+      router
+    }
+  },
   beforeCreate() {
     if (process.client) {
       if (!localStorage.getItem('isAuthenticated')) {
-        router.push({ path: "/login" });
+        this.router.push({ path: "/login" });
+      }
+      else {
+        this.user = JSON.parse(localStorage.getItem('user'))
       }
     }
   },
-  mounted() {
-    this.router = useRouter()
-    if (process.client) {
-      this.user = JSON.parse(localStorage.getItem('user'))
-    }
-
-  },
   data () {
     return {
-      user: null,
-      router: null
+      user: null
     }
   },
   methods: {

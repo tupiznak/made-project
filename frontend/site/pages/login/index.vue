@@ -19,7 +19,19 @@
 </template>
 
 <script>
+import { ConfigSetup } from "../../services/ConfigSetup";
+
 export default {
+  setup() {
+    const configSetup = new ConfigSetup()
+    const config = configSetup.setup()
+    const router = useRouter();
+
+    return {
+      config,
+      router
+    }
+  },
   data() {
     return {
       authorId: '',
@@ -28,11 +40,8 @@ export default {
   methods: {
     async login() {
       try {
-        const router = useRouter()
-        const config = useRuntimeConfig()
-
         const data = await $fetch(
-            `${config.serverUrl}/database/author/read?_id=${this.authorId}`,
+            `${this.config.serverUrl}/database/author/read?_id=${this.authorId}`,
             { method: "POST" })
 
         if (process.client) {
@@ -47,7 +56,7 @@ export default {
           }));
         }
 
-        router.push({ path: "/" });
+        this.router.push({ path: "/" });
       } catch (e) {
         console.error(e);
       }

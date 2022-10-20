@@ -19,10 +19,12 @@ v-container
 
 <script setup>
 import { onMounted, ref } from "vue";
+import {ConfigSetup} from "../services/ConfigSetup";
 const paperCount = ref("---");
 const authorCount = ref("---");
 const venueCount = ref("---");
-const config = useRuntimeConfig();
+const configSetup = new ConfigSetup();
+const config = configSetup.setup();
 const router = useRouter();
 
 onMounted(() => {
