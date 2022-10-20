@@ -3,7 +3,7 @@ from nltk.corpus import stopwords, wordnet
 from nltk.stem import WordNetLemmatizer
 from string import punctuation
 from gensim import corpora, models
-from ml.lda.config import MODEL_PATH, DICTIONARY_PATH
+from ml.lda.config import MODEL_PATH, DICTIONARY_PATH, id2topic
 from typing import List, Tuple
 import re
 english_stopwords = stopwords.words("english")
@@ -68,7 +68,7 @@ model = models.LdaModel.load(MODEL_PATH)
 dictionary = corpora.Dictionary.load(DICTIONARY_PATH)
 
 
-def inference(abstracts: List[str]) -> List[Tuple[int, float]]:
+def inference(abstracts: List[str], return_probs=False) -> List[Tuple[int, float]]:
     papers = preprocess(abstracts)
 
     list_of_list_of_tokens = list(map(lambda x: x.split(' '), papers))
@@ -80,6 +80,9 @@ def inference(abstracts: List[str]) -> List[Tuple[int, float]]:
 
     inference_result = model[corpus]
 
-    result = [(topic[0][0], float(topic[0][1])) for topic in inference_result]
+    if return_probs:
+        result = [(id2topic[topic[0][0]], float(topic[0][1])) for topic in inference_result]
+    else:
+        result = [id2topic[topic[0][0]] for topic in inference_result]
 
     return result
