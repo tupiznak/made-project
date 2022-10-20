@@ -27,6 +27,10 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r backend/requirements.txt
+      - name: Install ML dependencies
+        run: |
+          pip install -r backend/requirements.ml.txt
+          python backend/ml/lda/prepare.py
       - name: Lint with flake8
         run: |
            flake8 . --count --max-line-length=120 --show-source --statistics --ignore=F403,F405,W605,F811
