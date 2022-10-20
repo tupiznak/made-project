@@ -1,5 +1,5 @@
-MODEL_PATH = "ml/models/lda.model"
-DICTIONARY_PATH = "ml/models/dictionary.dict"
+MODEL_PATH = "backend/ml/models/lda.model"
+DICTIONARY_PATH = "backend/ml/models/dictionary.dict"
 
 id2topic = {
     0: "machine learning",
