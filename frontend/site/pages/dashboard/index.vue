@@ -81,9 +81,10 @@ v-card
                 v-spacer
                 v-btn(
                   size="small",
-                  color="surface-variant",
+                  :color="isPaperLiked(paper._id) ? 'red' : 'surface-variant'",
                   variant="text",
-                  icon="mdi-heart"
+                  icon="mdi-heart",
+                  @click="likePaper(paper._id)"
                 )
 </template>
 
@@ -96,15 +97,38 @@ const filteredPapers = ref([]);
 const yearFilter = ref([1900, 2020]);
 const authorFilter = ref("");
 const venueFilter = ref("");
+const likedPapers = ref([]);
+const authorId = "53f43f21dabfaee02ad05927";
 
-onMounted(() => {
+onMounted(async () => {
   if (config.serverUrl.indexOf("vercel") !== -1) {
     const currURL = document.URL;
     const pathArray = currURL.split("/");
     const gitPath = pathArray[2].slice(8);
     config.serverUrl = `${pathArray[0]}//made22t4-back${gitPath}`;
   }
+  await fetchLikedPapers();
 });
+
+const fetchLikedPapers = async () => {
+  const data = await $fetch(
+    `${config.serverUrl}/database/author/liked_papers?_id=${authorId}`
+  );
+  likedPapers.value = data;
+  console.log(likedPapers.value);
+};
+
+const isPaperLiked = (paper_id) => {
+  return likedPapers.value.includes(paper_id);
+};
+
+const likePaper = async (paper_id) => {
+  const data = await $fetch(
+    `${config.serverUrl}/database/author/update/like?_id=${authorId}&paper_id=${paper_id}`,
+    { method: "POST" }
+  );
+  await fetchLikedPapers();
+};
 
 const paperAmount = async () => {
   const data = await $fetch(`${config.serverUrl}/database/paper/total_size`);
