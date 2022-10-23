@@ -81,9 +81,10 @@ v-card
                 v-spacer
                 v-btn(
                   size="small",
-                  color="surface-variant",
+                  :color="isPaperLiked(paper._id) ? 'red' : 'surface-variant'",
                   variant="text",
-                  icon="mdi-heart"
+                  icon="mdi-heart",
+                  @click="likePaper(paper._id)"
                 )
 </template>
 
@@ -98,13 +99,37 @@ const yearFilter = ref([1900, 2020]);
 const authorFilter = ref("");
 const venueFilter = ref("");
 const localStorageService = new LocalStorage();
+const likedPapers = ref([]);
+let authorId = "";
 let config = useRuntimeConfig();
 
-onMounted(() => {
+onMounted(async() => {
   localStorageService.pushToLoginIfNotAuthenticated();
+  authorId = localStorageService.getUser()._id;
   const configSetup = new ConfigSetup();
   config = configSetup.setup();
+  await fetchLikedPapers();
 });
+
+const fetchLikedPapers = async () => {
+  const data = await $fetch(
+    `${config.serverUrl}/database/author/liked_papers?_id=${authorId}`
+  );
+  likedPapers.value = data;
+  console.log(likedPapers.value);
+};
+
+const isPaperLiked = (paper_id) => {
+  return likedPapers.value.includes(paper_id);
+};
+
+const likePaper = async (paper_id) => {
+  const data = await $fetch(
+    `${config.serverUrl}/database/author/update/like?_id=${authorId}&paper_id=${paper_id}`,
+    { method: "POST" }
+  );
+  await fetchLikedPapers();
+};
 
 const paperAmount = async () => {
   const data = await $fetch(`${config.serverUrl}/database/paper/total_size`);
