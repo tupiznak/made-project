@@ -24,12 +24,13 @@ import {LocalStorage} from "../services/LocalStorage";
 const paperCount = ref("---");
 const authorCount = ref("---");
 const venueCount = ref("---");
-const configSetup = new ConfigSetup();
-const config = configSetup.setup();
 const localStorageService = new LocalStorage();
+let config = useRuntimeConfig();
 
 onMounted(() => {
-  localStorageService.pushToLoginIfNotAuthenticated()
+  localStorageService.pushToLoginIfNotAuthenticated();
+  const configSetup = new ConfigSetup();
+  config = configSetup.setup();
 });
 
 const paperAmount = async () => {

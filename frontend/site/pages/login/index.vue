@@ -20,24 +20,26 @@
 
 <script>
 import { ConfigSetup } from "../../services/ConfigSetup";
-import {LocalStorage} from "../../services/LocalStorage";
+import { LocalStorage } from "../../services/LocalStorage";
 
 export default {
   setup() {
-    const configSetup = new ConfigSetup()
     const localStorageService = new LocalStorage()
-    const config = configSetup.setup()
     const router = useRouter();
 
     return {
-      config,
       localStorageService,
       router
     }
   },
+  mounted() {
+    const configSetup = new ConfigSetup()
+    this.config = configSetup.setup()
+  },
   data() {
     return {
       authorId: '',
+      config: null
     }
   },
   methods: {
@@ -77,9 +79,5 @@ export default {
 
 .register {
   margin-top: 2vh;
-}
-
-.link {
-
 }
 </style>

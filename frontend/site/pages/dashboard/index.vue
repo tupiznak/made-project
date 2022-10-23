@@ -93,16 +93,17 @@ import { ref, onMounted } from "vue";
 import {ConfigSetup} from "../../services/ConfigSetup";
 import {LocalStorage} from "../../services/LocalStorage";
 const search = ref("");
-const configSetup = new ConfigSetup();
-const config = configSetup.setup();
 const filteredPapers = ref([]);
 const yearFilter = ref([1900, 2020]);
 const authorFilter = ref("");
 const venueFilter = ref("");
 const localStorageService = new LocalStorage();
+let config = useRuntimeConfig();
 
 onMounted(() => {
-  localStorageService.pushToLoginIfNotAuthenticated()
+  localStorageService.pushToLoginIfNotAuthenticated();
+  const configSetup = new ConfigSetup();
+  config = configSetup.setup();
 });
 
 const paperAmount = async () => {
