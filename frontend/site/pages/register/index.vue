@@ -1,26 +1,17 @@
-<template>
-  <div class="card-container">
-    <v-card class="mx-auto elevation-5 text-center pa-5 card"
-    >
-      <v-card-subtitle class="title black--text pa-1">
-        Register
-      </v-card-subtitle>
-      <v-text-field color="black" label="Author ID" class="text-field" v-model="author._id"></v-text-field>
-      <v-text-field color="black" label="Name" class="text-field" v-model="author.name"></v-text-field>
-      <v-text-field color="black" label="Organization" class="text-field" v-model="author.org"></v-text-field>
-      <v-text-field color="black" label="Gid" class="text-field" v-model="author.gid"></v-text-field>
-      <v-text-field color="black" label="Oid" class="text-field" v-model="author.oid"></v-text-field>
-      <v-text-field color="black" label="Organization ID" class="text-field" v-model="author.orgid"></v-text-field>
-      <v-card-actions>
-        <v-btn color="black" dark block rounded @click="register">
-          Register
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-    <div class="text-center register">
-      <v-btn color="black" to="/login" nuxt>Login</v-btn>
-    </div>
-  </div>
+<template lang="pug">
+  .card-container
+    v-card.mx-auto.elevation-5.text-center.pa-5.card
+      v-card-subtitle.title.black--text.pa-1 Register
+      v-text-field.text-field(color='black' label='Author ID' v-model='author._id')
+      v-text-field.text-field(color='black' label='Name' v-model='author.name')
+      v-text-field.text-field(color='black' label='Organization' v-model='author.org')
+      v-text-field.text-field(color='black' label='Gid' v-model='author.gid')
+      v-text-field.text-field(color='black' label='Oid' v-model='author.oid')
+      v-text-field.text-field(color='black' label='Organization ID' v-model='author.orgid')
+      v-card-actions
+        v-btn(color='black' dark='' block='' rounded='' @click='register') Register
+    .text-center.register
+      v-btn(color='black' to='/login' nuxt='') Login
 </template>
 
 <script>

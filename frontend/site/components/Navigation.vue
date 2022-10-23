@@ -1,38 +1,16 @@
-<template>
-
-  <v-toolbar app>
-    <v-toolbar-title class="hidden-xs-only">
-      <NuxtLink to="/" class="link">
-        {{ appTitle }}
-      </NuxtLink>
-    </v-toolbar-title>
-    <v-spacer></v-spacer>
-    <v-toolbar-items v-if="isAuthenticated">
-      <v-btn
-          flat
-          v-for="item in menuItems"
-          :key="item.title"
-          :to="item.path"
-          nuxt>
-        {{ item.title }}
-      </v-btn>
-      <v-btn to="/profile" nuxt>{{ user?.name }}</v-btn>
-    </v-toolbar-items>
-    <v-toolbar-items v-else>
-      <v-btn
-          flat
-          v-for="item in authItems"
-          :key="item.title"
-          :to="item.path"
-          nuxt>
-        {{ item.title }}
-      </v-btn>
-    </v-toolbar-items>
-  </v-toolbar>
+<template lang="pug">
+  v-toolbar(app='')
+    v-toolbar-title.hidden-xs-only
+      nuxtlink.link(to='/') {{ appTitle }}
+    v-spacer
+    v-toolbar-items(v-if='isAuthenticated')
+      v-btn(flat='' v-for='item in menuItems' :key='item.title' :to='item.path' nuxt='') {{ item.title }}
+      v-btn(to='/profile' nuxt='') {{ user?.name }}
+    v-toolbar-items(v-else='')
+      v-btn(flat='' v-for='item in authItems' :key='item.title' :to='item.path' nuxt='') {{ item.title }}
 </template>
 
 <script>
-import {ConfigSetup} from "../services/ConfigSetup";
 import {LocalStorage} from "../services/LocalStorage";
 
 export default {
