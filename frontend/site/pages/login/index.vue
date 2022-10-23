@@ -1,12 +1,21 @@
-<template lang="pug">
-  .card-container
-    v-card.mx-auto.elevation-5.text-center.pa-5.card
-      v-card-subtitle.title.black--text.pa-1 Sign in
-      v-text-field.author-id(color='black' label='AuthorId' v-model='authorId')
-      v-card-actions
-        v-btn(color='black' dark='' block='' rounded='' @click='login') Sign in
-    .text-center.register
-      v-btn(color='black' to='/register' nuxt='') Register
+<template>
+  <div class="card-container">
+    <v-card class="mx-auto elevation-5 text-center pa-5 card"
+    >
+      <v-card-subtitle class="title black--text pa-1">
+        Sign in
+      </v-card-subtitle>
+      <v-text-field color="black" label="AuthorId" class="author-id" v-model="authorId"></v-text-field>
+      <v-card-actions>
+        <v-btn color="black" dark block rounded @click="login">
+          Sign in
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+    <div class="text-center register">
+      <v-btn color="black" to="/register" nuxt>Register</v-btn>
+    </div>
+  </div>
 </template>
 
 <script>
