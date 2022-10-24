@@ -101,19 +101,19 @@ const venueFilter = ref("");
 const localStorageService = new LocalStorage();
 const likedPapers = ref([]);
 let authorId = "";
-let config = useRuntimeConfig();
+let serverUrl = "";
 
 onMounted(async() => {
   localStorageService.pushToLoginIfNotAuthenticated();
   authorId = localStorageService.getUser()._id;
   const configSetup = new ConfigSetup();
-  config = configSetup.setup();
+  serverUrl = configSetup.getServerUrl();
   await fetchLikedPapers();
 });
 
 const fetchLikedPapers = async () => {
   const data = await $fetch(
-    `${config.serverUrl}/database/author/liked_papers?_id=${authorId}`
+    `${serverUrl}/database/author/liked_papers?_id=${authorId}`
   );
   likedPapers.value = data;
   console.log(likedPapers.value);
@@ -125,27 +125,27 @@ const isPaperLiked = (paper_id) => {
 
 const likePaper = async (paper_id) => {
   const data = await $fetch(
-    `${config.serverUrl}/database/author/update/like?_id=${authorId}&paper_id=${paper_id}`,
+    `${serverUrl}/database/author/update/like?_id=${authorId}&paper_id=${paper_id}`,
     { method: "POST" }
   );
   await fetchLikedPapers();
 };
 
 const paperAmount = async () => {
-  const data = await $fetch(`${config.serverUrl}/database/paper/total_size`);
+  const data = await $fetch(`${serverUrl}/database/paper/total_size`);
   paperCount.value = data;
 };
 
 const find = async () => {
   const data = await $fetch(
-    `${config.serverUrl}/database/paper/abstract_substring?sub_string=${search.value}&chunk_size=10`,
+    `${serverUrl}/database/paper/abstract_substring?sub_string=${search.value}&chunk_size=10`,
     { method: "POST" }
   );
   filteredPapers.value = data;
 };
 const findByFilters = async () => {
   const data = await $fetch(
-    `${config.serverUrl}/database/paper/filter?author=${authorFilter.value}&venue=${venueFilter.value}&year_start=${yearFilter.value[0]}&year_end=${yearFilter.value[1]}&chunk_size=10`,
+    `${serverUrl}/database/paper/filter?author=${authorFilter.value}&venue=${venueFilter.value}&year_start=${yearFilter.value[0]}&year_end=${yearFilter.value[1]}&chunk_size=10`,
     { method: "POST" }
   );
   filteredPapers.value = data;

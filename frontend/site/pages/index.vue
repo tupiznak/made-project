@@ -25,24 +25,24 @@ const paperCount = ref("---");
 const authorCount = ref("---");
 const venueCount = ref("---");
 const localStorageService = new LocalStorage();
-let config = useRuntimeConfig();
+let serverUrl = "";
 
 onMounted(() => {
   localStorageService.pushToLoginIfNotAuthenticated();
   const configSetup = new ConfigSetup();
-  config = configSetup.setup();
+  serverUrl = configSetup.getServerUrl();
 });
 
 const paperAmount = async () => {
-    const data = await $fetch(`${config.serverUrl}/database/paper/total_size`)
+    const data = await $fetch(`${serverUrl}/database/paper/total_size`)
     paperCount.value = data
 };
 const authorAmount = async () => {
-    const data = await $fetch(`${config.serverUrl}/database/author/total_size`)
+    const data = await $fetch(`${serverUrl}/database/author/total_size`)
     authorCount.value = data
 };
 const venueAmount = async () => {
-    const data = await $fetch(`${config.serverUrl}/database/venue/total_size`)
+    const data = await $fetch(`${serverUrl}/database/venue/total_size`)
     venueCount.value = data
 };
 

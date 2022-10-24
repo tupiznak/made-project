@@ -1,18 +1,18 @@
 <template lang="pug">
-  v-container
-    v-row
-      v-col
-        h3 {{ user?.name }}
-    v-row
-      v-col AuthorID: {{ user?._id }}
-      v-col Organization: {{ user?.org }}
-      v-col OrganizationID: {{ user?.orgid }}
-    v-row
-      v-col GID: {{ user?.gid }}
-      v-col OID: {{ user?.oid }}
-    v-spacer
-    v-row
-      v-btn(@click='logout') Logout
+v-container
+  v-row
+    v-col
+      h3 {{ user?.name }}
+  v-row
+    v-col AuthorID: {{ user?._id }}
+    v-col Organization: {{ user?.org }}
+    v-col OrganizationID: {{ user?.orgid }}
+  v-row
+    v-col GID: {{ user?.gid }}
+    v-col OID: {{ user?.oid }}
+  v-spacer
+  v-row
+    v-btn(@click='logout') Logout
 </template>
 
 <script>

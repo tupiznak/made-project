@@ -1,13 +1,13 @@
 <template lang="pug">
-  v-toolbar(app='')
-    v-toolbar-title.hidden-xs-only
-      nuxtlink.link(to='/') {{ appTitle }}
-    v-spacer
-    v-toolbar-items(v-if='isAuthenticated')
-      v-btn(flat='' v-for='item in menuItems' :key='item.title' :to='item.path' nuxt='') {{ item.title }}
-      v-btn(to='/profile' nuxt='') {{ user?.name }}
-    v-toolbar-items(v-else='')
-      v-btn(flat='' v-for='item in authItems' :key='item.title' :to='item.path' nuxt='') {{ item.title }}
+v-toolbar(app='')
+  v-toolbar-title.hidden-xs-only
+    nuxtlink.link(to='/') {{ appTitle }}
+  v-spacer
+  v-toolbar-items(v-if='isAuthenticated')
+    v-btn(flat='' v-for='item in menuItems' :key='item.title' :to='item.path' nuxt='') {{ item.title }}
+    v-btn(to='/profile' nuxt='') {{ user?.name }}
+  v-toolbar-items(v-else='')
+    v-btn(flat='' v-for='item in authItems' :key='item.title' :to='item.path' nuxt='') {{ item.title }}
 </template>
 
 <script>

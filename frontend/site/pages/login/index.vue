@@ -1,12 +1,12 @@
 <template lang="pug">
-  .card-container
-    v-card.mx-auto.elevation-5.text-center.pa-5.card
-      v-card-subtitle.title.black--text.pa-1 Sign in
-      v-text-field.author-id(color='black' label='AuthorId' v-model='authorId')
-      v-card-actions
-        v-btn(color='black' dark='' block='' rounded='' @click='login') Sign in
-    .text-center.register
-      v-btn(color='black' to='/register' nuxt='') Register
+.card-container
+  v-card.mx-auto.elevation-5.text-center.pa-5.card
+    v-card-subtitle.title.black--text.pa-1 Sign in
+    v-text-field.author-id(color='black' label='AuthorId' v-model='authorId')
+    v-card-actions
+      v-btn(color='black' dark='' block='' rounded='' @click='login') Sign in
+  .text-center.register
+    v-btn(color='black' to='/register' nuxt='') Register
 </template>
 
 <script>
@@ -25,19 +25,20 @@ export default {
   },
   mounted() {
     const configSetup = new ConfigSetup()
-    this.config = configSetup.setup()
+    debugger
+    this.serverUrl = configSetup.getServerUrl()
   },
   data() {
     return {
       authorId: '',
-      config: null
+      serverUrl: ''
     }
   },
   methods: {
     async login() {
       try {
         const data = await $fetch(
-            `${this.config.serverUrl}/database/author/read?_id=${this.authorId}`,
+            `${this.serverUrl}/database/author/read?_id=${this.authorId}`,
             { method: "POST" })
 
         this.localStorageService.setUser(data)

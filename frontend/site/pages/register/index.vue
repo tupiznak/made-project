@@ -1,17 +1,17 @@
 <template lang="pug">
-  .card-container
-    v-card.mx-auto.elevation-5.text-center.pa-5.card
-      v-card-subtitle.title.black--text.pa-1 Register
-      v-text-field.text-field(color='black' label='Author ID' v-model='author._id')
-      v-text-field.text-field(color='black' label='Name' v-model='author.name')
-      v-text-field.text-field(color='black' label='Organization' v-model='author.org')
-      v-text-field.text-field(color='black' label='Gid' v-model='author.gid')
-      v-text-field.text-field(color='black' label='Oid' v-model='author.oid')
-      v-text-field.text-field(color='black' label='Organization ID' v-model='author.orgid')
-      v-card-actions
-        v-btn(color='black' dark='' block='' rounded='' @click='register') Register
-    .text-center.register
-      v-btn(color='black' to='/login' nuxt='') Login
+.card-container
+  v-card.mx-auto.elevation-5.text-center.pa-5.card
+    v-card-subtitle.title.black--text.pa-1 Register
+    v-text-field.text-field(color='black' label='Author ID' v-model='author._id')
+    v-text-field.text-field(color='black' label='Name' v-model='author.name')
+    v-text-field.text-field(color='black' label='Organization' v-model='author.org')
+    v-text-field.text-field(color='black' label='Gid' v-model='author.gid')
+    v-text-field.text-field(color='black' label='Oid' v-model='author.oid')
+    v-text-field.text-field(color='black' label='Organization ID' v-model='author.orgid')
+    v-card-actions
+      v-btn(color='black' dark='' block='' rounded='' @click='register') Register
+  .text-center.register
+    v-btn(color='black' to='/login' nuxt='') Login
 </template>
 
 <script>
@@ -30,18 +30,18 @@ export default {
   },
   mounted() {
     const configSetup = new ConfigSetup()
-    this.config = configSetup.setup()
+    this.serverUrl = configSetup.getServerUrl()
   },
   data() {
     return {
       author: new Author('', '', '', '', '', ''),
-      config: null
+      serverUrl: ''
     }
   },
   methods: {
     async register() {
       try {
-        const data = await $fetch(`${this.config.serverUrl}/database/author/create`, {
+        const data = await $fetch(`${this.serverUrl}/database/author/create`, {
           headers: {
             'accept': 'application/json',
             'Content-Type': 'application/json',
