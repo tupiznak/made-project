@@ -2,16 +2,18 @@ import mongoengine.errors
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from starlette_exporter import PrometheusMiddleware, handle_metrics
+from starlette_exporter import PrometheusMiddleware
 
 from app.routes.database import database_router
+from app.routes.metrics import metric_request
 from database.connection import connect
 
 _ = connect
 
+
 app = FastAPI()
 app.add_middleware(PrometheusMiddleware)
-app.add_route("/metrics", handle_metrics)
+app.add_route("/metrics", metric_request)
 
 
 @app.exception_handler(mongoengine.errors.NotUniqueError)
@@ -29,6 +31,7 @@ origins = [
     "http://127.0.0.1:3000",
     "http://localhost:3000",
     "https://made22t4.vercel.app",
+    "*"
 ]
 
 app.add_middleware(

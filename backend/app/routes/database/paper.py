@@ -10,7 +10,7 @@ paper_operations = PaperOperations()
 @paper_router.post("/create", tags=['paper'])
 async def create_database_paper(paper: Paper):
     """
-     ## Запрос позвляет создавать статьи в базе данных со следующими параметрами:
+     ## Запрос позволяет создавать статьи в базе данных со следующими параметрами:
 
     - **_id**: Уникальный идентификатор статьи (тип string)
     - **title**: Название статьи (тип string)
@@ -26,7 +26,7 @@ async def create_database_paper(paper: Paper):
 @paper_router.post("/read", tags=['paper'])
 async def read_database_paper(_id: str):
     """
-     ## Запрос позвляет получать статьи из базы данных со следующими параметрами:
+     ## Запрос позволяет получать статьи из базы данных со следующими параметрами:
 
         - **_id**: Уникальный идентификатор статьи (тип string)
         - **title**: Название статьи (тип string)
@@ -46,7 +46,7 @@ async def read_database_paper(_id: str):
 @paper_router.post("/update", tags=['paper'])
 async def update_database_paper(paper: Paper):
     """
-     ## Запрос позвляет изменять статьи в базе данных.
+     ## Запрос позволяет изменять статьи в базе данных.
         Для изменения статьи необходимо передать следующие параметры:
 
         - **_id**: Уникальный идентификатор статьи (тип string)
@@ -64,7 +64,7 @@ async def update_database_paper(paper: Paper):
 @paper_router.post("/update/title", tags=['paper'])
 async def update_title_database_paper(_id: str, title: str):
     """
-     ## Запрос позвляет изменять название статьи в базе данных.
+     ## Запрос позволяет изменять название статьи в базе данных.
         Для изменения названия конкретной статьи необходимо передать два обязательных параметра:
 
         - **_id**: Уникальный идентификатор статьи (тип string)
@@ -76,7 +76,7 @@ async def update_title_database_paper(_id: str, title: str):
 @paper_router.post("/delete", tags=['paper'])
 async def delete_database_paper(_id: str):
     """
-     ## Запрос позвляет удалять статью из базы данных.
+     ## Запрос позволяет удалять статью из базы данных.
         Для удаления конкретной статьи из базы данных необходимо передать обязательный параметр:
         - **_id**: Уникальный идентификатор статьи (тип string)
     """
@@ -86,7 +86,7 @@ async def delete_database_paper(_id: str):
 @paper_router.get("/", tags=['paper'])
 async def read_database_papers(chunk_size: int = 10):
     """
-     ## Запрос позвляет получить несколько статей из базы данных.
+     ## Запрос позволяет получить несколько статей из базы данных.
         Для получения нужного количества статей необходимо передать необязательный параметр:
         - **chunk_size**: количество статей (тип int)
 
@@ -96,10 +96,11 @@ async def read_database_papers(chunk_size: int = 10):
     return paper_operations.get_chunk(chunk_size=chunk_size)
 
 
-@paper_router.post("/filter", tags=['paper'])
-async def filter_database_papers(paper_filter: dict, exclude_paper: dict = None, chunk_size: int = 10):
+@paper_router.post("/base_filter", tags=['paper'])
+async def base_filter_database_papers(paper_filter: dict, exclude_paper: dict = None,
+                                      chunk_size: int = 10):
     """
-     ## Запрос позвляет получить несколько статей из базы данных по определённым условиям.
+     ## Запрос позволяет получить несколько статей из базы данных по определённым условиям.
         Для получения статей с заданными параметрами необходимо передать значение параметров в фильтры:
         - **paper_filter**: фильтр параметров, значение которых должно быть включено в выдачу,
         - **exclude_paper**: фильтр параметров, значение которых должно быть исключено из выдачи.
@@ -107,19 +108,28 @@ async def filter_database_papers(paper_filter: dict, exclude_paper: dict = None,
         Для получения нужного количества статей необходимо передать необязательный параметр:
         - **chunk_size**: количество статей (тип int)
 
-     ### В ответ на запрос выозвращается *chunk_size* статей, параметры которых включют параметры из *paper_filter* и
+     ### В ответ на запрос возвращается *chunk_size* статей, параметры которых включают параметры из *paper_filter* и
      ### исключают параметры из *exclude_paper*
 
         -------------
         По умолчанию параметр **chunk_size** имеет значение 10
     """
-    return paper_operations.filter(paper_filter=paper_filter, exclude_paper=exclude_paper, chunk_size=chunk_size)
+    return paper_operations.base_filter(paper_filter=paper_filter,
+                                        exclude_paper=exclude_paper, chunk_size=chunk_size)
+
+
+@paper_router.post("/filter", tags=['paper'])
+async def filter_database_papers(author: str = None, venue: str = None,
+                                 year_start: int = 0, year_end: int = 3000, chunk_size: int = 10):
+    return paper_operations.filter(author=author, venue=venue,
+                                   year_start=year_start, year_end=year_end,
+                                   chunk_size=chunk_size)
 
 
 @paper_router.post("/abstract_substring", tags=['paper'])
 async def sub_str_in_abstract_database_papers(sub_string: str, chunk_size: int = 10):
     """
-     ## Запрос позвляет получить несколько статей из базы данных по подстроке в описании статьи.
+     ## Запрос позволяет получить несколько статей из базы данных по подстроке в описании статьи.
         Для получения статей, в описании которых присутствует заданная подстрока, необходимо передать
         один обязательный параметр:
         - **sub_string**: Подстрока, которая должна быть включена в описании статей (тип string),
@@ -128,7 +138,7 @@ async def sub_str_in_abstract_database_papers(sub_string: str, chunk_size: int =
         - **chunk_size**: количество статей (тип int)
 
 
-     ### В ответ на запрос выозвращается *chunk_size* статей, включающих подстроку *sub_string* в описании статьи
+     ### В ответ на запрос возвращается *chunk_size* статей, включающих подстроку *sub_string* в описании статьи
         -------------
         По умолчанию параметр **chunk_size** имеет значение 10
     """
@@ -138,7 +148,7 @@ async def sub_str_in_abstract_database_papers(sub_string: str, chunk_size: int =
 @paper_router.get("/total_size", tags=['paper'])
 async def total_size_database_papers():
     """
-     ## Запрос позвляет получить количество статей в базе данных на данный момент.
+     ## Запрос позволяет получить количество статей в базе данных на данный момент.
     """
     return paper_operations.total_size()
 
@@ -146,7 +156,7 @@ async def total_size_database_papers():
 @paper_router.get("/venue", tags=['paper'])
 async def venues_database_papers(venue_id: str, chunk_size: int = 10):
     """
-     ## Запрос позвляет получить несколько статей из базы данных по месту её публикации.
+     ## Запрос позволяет получить несколько статей из базы данных по месту её публикации.
      Для получения статей по месту их публикации, необходимо передать один обязательный параметр:
         - **venue_id**: Место публикации статьи (тип string),
 

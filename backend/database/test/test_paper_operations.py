@@ -26,9 +26,8 @@ def some_data(paper_operations):
 
 
 def test_crud(paper_operations):
-    paper = Paper(_id='q', title='gtrgdtg', abstract='grtgrt', venue='123')
+    paper = Paper(_id='q', title='gtrgdtg', abstract='grtgrt', venue='123', authors=['author1', 'author2'])
     paper_operations.model_to_db(paper_operations.to_model(paper_operations.model_to_db(paper)))
-
     paper_operations.create(paper)
     with pytest.raises(mongoengine.errors.NotUniqueError):
         paper_operations.create(paper)
@@ -59,11 +58,11 @@ def test_chunk(paper_operations, some_data):
 
 
 def test_filter(paper_operations, some_data):
-    assert paper_operations.filter(dict(title='gg')) == [some_data[3]]
-    assert set(paper_operations.filter(dict(year=2002))) == {some_data[1], some_data[3]}
-    assert set(paper_operations.filter(dict(year=2002))) == {some_data[1], some_data[3]}
-    assert paper_operations.filter(dict(year=2002, title='gg')) == [some_data[3]]
-    assert paper_operations.filter(dict(year=2002), exclude_paper=dict(title='gg')) == [some_data[1]]
+    assert paper_operations.base_filter(dict(title='gg')) == [some_data[3]]
+    assert set(paper_operations.base_filter(dict(year=2002))) == {some_data[1], some_data[3]}
+    assert set(paper_operations.base_filter(dict(year=2002))) == {some_data[1], some_data[3]}
+    assert paper_operations.base_filter(dict(year=2002, title='gg')) == [some_data[3]]
+    assert paper_operations.base_filter(dict(year=2002), exclude_paper=dict(title='gg')) == [some_data[1]]
 
 
 def test_sub_str_abstract(paper_operations, some_data):
