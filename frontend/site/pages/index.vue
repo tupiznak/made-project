@@ -18,23 +18,32 @@ v-container
 </template>
 
 <script setup>
-import { ref } from "vue";
-const paperCount = ref("---")
-const authorCount = ref("---")
-const venueCount = ref("---")
-const config = useRuntimeConfig()
+import { onMounted, ref } from "vue";
+import {ConfigSetup} from "../services/ConfigSetup";
+import {LocalStorage} from "../services/LocalStorage";
+const paperCount = ref("---");
+const authorCount = ref("---");
+const venueCount = ref("---");
+const localStorageService = new LocalStorage();
+let serverUrl = "";
+
+onMounted(() => {
+  localStorageService.pushToLoginIfNotAuthenticated();
+  const configSetup = new ConfigSetup();
+  serverUrl = configSetup.getServerUrl();
+});
 
 const paperAmount = async () => {
-    const data = await $fetch(`${config.serverUrl}/database/paper/total_size`)
+    const data = await $fetch(`${serverUrl}/database/paper/total_size`)
     paperCount.value = data
-}
+};
 const authorAmount = async () => {
-    const data = await $fetch(`${config.serverUrl}/database/author/total_size`)
+    const data = await $fetch(`${serverUrl}/database/author/total_size`)
     authorCount.value = data
-}
+};
 const venueAmount = async () => {
-    const data = await $fetch(`${config.serverUrl}/database/venue/total_size`)
+    const data = await $fetch(`${serverUrl}/database/venue/total_size`)
     venueCount.value = data
-}
+};
 
 </script>
