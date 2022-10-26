@@ -31,15 +31,34 @@ def paper_operations():
 
 @pytest.fixture
 def some_data(author_operations):
-    a1 = author_operations.create(Author(_id='q', name='gtrgdtg', org='grtgrt'))
-    a2 = author_operations.create(Author(_id='q2', name='gtrgdtg', org='xa', gid='sdaf', oid='123'))
-    a3 = author_operations.create(Author(_id='q22', name='gtrgdtg', org='grtgrt', oid='123'))
-    a4 = author_operations.create(Author(_id='222', name='gg', org='wer', gid='sdaf', oid='32'))
+    a1 = author_operations.create(Author(_id='q', name='gtrgdtg',
+                                         org='grtgrt', papers=['pid4']))
+    a2 = author_operations.create(Author(_id='q2', name='gtrgdtg',
+                                         org='xa',
+                                         gid='sdaf', oid='123', papers=['pid3']))
+    a3 = author_operations.create(Author(_id='q22', name='gtrgdtg',
+                                         org='grtgrt', oid='123'))
+    a4 = author_operations.create(Author(_id='222', name='gg',
+                                         org='wer',
+                                         gid='sdaf', oid='32', papers=['pid1', 'pid2']))
     return a1, a2, a3, a4
 
 
+@pytest.fixture
+def some_papers_data(paper_operations):  # papers data for h-index test
+    p1 = paper_operations.create(Paper(_id='pid1', title='title1',
+                                       n_citation=13))
+    p2 = paper_operations.create(Paper(_id='pid2', title='title2',
+                                       year=1960, n_citation = 520))
+    p3 = paper_operations.create(Paper(_id='pid3', title='title3'))
+    p4 = paper_operations.create(Paper(_id='pid4', title='title4',
+                                       year=1952, n_citation = None))
+    return p1, p2, p3, p4
+
+
 def test_crud(author_operations):
-    author = Author(_id='qwertyu', name='gtrgdtg', org='grtgrt', oid='123', papers=['asdf', 'zxcv'],
+    author = Author(_id='qwertyu', name='gtrgdtg', org='grtgrt', oid='123',
+                    papers=['asdf', 'zxcv'],
                     history=[{"event": "string", "time": 0, "description": "string"}])
     author_operations.model_to_db(author_operations.to_model(author_operations.model_to_db(author)))
 
@@ -119,6 +138,12 @@ def test_like_missing_paper(author_operations, paper_operations):
     with pytest.raises(database.db_objects.paper.DoesNotExist) as excinfo:
         author_operations.like(missing_paper_id, author.id)
     assert "Paper matching query does not exist." in str(excinfo.value)
+
+
+def test_h_index(author_operations, some_data, paper_operations, some_papers_data):
+    for author in some_data:  # going through all authors
+        this_h_index = author_operations.compute_h_index(author.id)  # h-index computation
+    assert this_h_index >= 0 and isinstance(this_h_index, int)
 
 
 # def test_delete_like(author_operations, paper_operations):

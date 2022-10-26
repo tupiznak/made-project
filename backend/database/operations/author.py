@@ -143,5 +143,41 @@ class AuthorOperations:
         liked_papers = list(map(lambda x: x.description, filter(lambda x: x.event == 'like', history)))
         return liked_papers
 
-    if __name__ == '__main__':
-        pass
+    def compute_h_index(self, author_id: str):
+        """
+        :type author_id
+        :type return: int
+
+        # Below is a GitHub description for h_index(citations: list[int])
+        # We rewrited it to use the only argument author_id!
+        #
+        # Given an array of citations (each citation is a non-negative integer)
+        # of a researcher, write a function to compute the researcher's h-index.
+        #
+        # According to the definition of h-index on Wikipedia:
+        # "A scientist has index h if h of his/her N papers have
+        # at least h citations each, and the other N − h papers have
+        # no more than h citations each."
+        #
+        # For example, given citations = [3, 0, 6, 1, 5],
+        # which means the researcher has 5 papers in total
+        # and each of them had received 3, 0, 6, 1, 5 citations respectively.
+        # Since the researcher has 3 papers with at least 3 citations each and
+        # the remaining two with no more than 3 citations each, his h-index is 3.
+        #
+        # Note: If there are several possible values for h, the maximum one is taken as the h-index.
+        # P.S. Taken from: https://github.com/kamyu104/LeetCode/blob/master/Python/h-index.py
+        """
+        db_author = self.find(author_id)  # db_object of the Class Author(Document)
+        if not db_author is None:  # if author exists
+            all_author_papers_ids = db_author.papers  # id's of all author's papers: list[str]
+            # Create a list of all papers (of the author) citations (n_citations: int): list[ints]
+            citations = [0] * len(all_author_papers_ids)  # type: List[int]
+            for ind_paper, author_paper_id in enumerate(all_author_papers_ids):
+                paper_n_citations = PaperOperations.get_n_citations(author_paper_id)
+                citations[ind_paper] = paper_n_citations
+            return sum(x >= i + 1 for i, x in enumerate( sorted(list(citations), reverse=True) ))
+
+
+if __name__ == '__main__':
+    pass
