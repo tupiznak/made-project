@@ -132,7 +132,15 @@ class PaperOperations:
         # Function returns n_citations of the paper by its paper_id
         """
         db_paper = self.find(paper_id)  # Paper(Document)
-        return db_paper.n_citation
+        # TODO: what if there is no such article?
+        try:
+            this_n_citation = db_paper.n_citation
+            if this_n_citation is None:
+                return 0
+            else:
+                return this_n_citation
+        except:  # no such field (n_citation) for the paper
+            return 0  # assume zero-citations for articles without 'n_citations' field
 
 
 if __name__ == '__main__':

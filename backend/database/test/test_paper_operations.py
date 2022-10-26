@@ -18,10 +18,14 @@ def paper_operations():
 
 @pytest.fixture
 def some_data(paper_operations):
-    p1 = paper_operations.create(Paper(_id='q', title='gtrgdtg', abstract='grtgrt'))
-    p2 = paper_operations.create(Paper(_id='q2', title='gtrgdtg', abstract='xa', year=2002, venue='123'))
-    p3 = paper_operations.create(Paper(_id='q22', title='gtrgdtg', abstract='grtgrt kjfwe ewr', venue='123'))
-    p4 = paper_operations.create(Paper(_id='222', title='gg', abstract='wer', year=2002, venue='32'))
+    p1 = paper_operations.create(Paper(_id='q', title='gtrgdtg', abstract='grtgrt',
+                                       n_citation=13))
+    p2 = paper_operations.create(Paper(_id='q2', title='gtrgdtg', abstract='xa',
+                                       year=2002, venue='123', n_citation = 520))
+    p3 = paper_operations.create(Paper(_id='q22', title='gtrgdtg', abstract='grtgrt kjfwe ewr',
+                                       venue='123'))
+    p4 = paper_operations.create(Paper(_id='222', title='gg', abstract='wer',
+                                       year=2002, venue='32', n_citation = None))
     return p1, p2, p3, p4
 
 
@@ -79,3 +83,10 @@ def test_count(paper_operations, some_data):
 def test_paper_by_venue(paper_operations, some_data):
     assert set(paper_operations.get_papers_by_venue(venue_id='123', chunk_size=10)) == \
            {some_data[1], some_data[2]}
+
+def test_paper_citations(paper_operations, some_data):
+    # test for the method get_n_citations(paper_id: str)
+    citations_list = [paper_operations.get_n_citations(paper.id) for paper in some_data]
+    assert len(citations_list) == len(some_data)
+    assert sum(citations_list) >= 0
+

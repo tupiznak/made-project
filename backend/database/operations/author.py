@@ -129,14 +129,14 @@ class AuthorOperations:
         # P.S. Taken from: https://github.com/kamyu104/LeetCode/blob/master/Python/h-index.py
         """
         db_author = self.find(author_id)  # db_object of the Class Author(Document)
-        all_author_papers_ids = db_author.papers  # id's of all author's papers: list[str]
-        # Create a list of all papers (of the author) citations (n_citations: int): list[ints]
-        citations = [0] * len(all_author_papers_ids)  # type: List[int]
-        for ind_paper, author_paper_id in enumerate(all_author_papers_ids):
-            paper_n_citations = PaperOperations.get_n_citations(author_paper_id)
-            if not paper_n_citations is None:
+        if not db_author is None:  # if author exists
+            all_author_papers_ids = db_author.papers  # id's of all author's papers: list[str]
+            # Create a list of all papers (of the author) citations (n_citations: int): list[ints]
+            citations = [0] * len(all_author_papers_ids)  # type: List[int]
+            for ind_paper, author_paper_id in enumerate(all_author_papers_ids):
+                paper_n_citations = PaperOperations.get_n_citations(author_paper_id)
                 citations[ind_paper] = paper_n_citations
-        return sum(x >= i + 1 for i, x in enumerate( sorted(list(citations), reverse=True) ))
+            return sum(x >= i + 1 for i, x in enumerate( sorted(list(citations), reverse=True) ))
 
 
 if __name__ == '__main__':
