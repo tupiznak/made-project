@@ -85,7 +85,7 @@ def test_paper_by_venue(paper_operations, some_data):
 
 
 def test_paper_citations(paper_operations, some_data):
-    # test for the method get_n_citations(paper_id: str)
+    # тест метода get_n_citations(paper_id: str)
     citations_list = [paper_operations.get_n_citations(paper.id) for paper in some_data]
     assert len(citations_list) == len(some_data)
     assert sum(citations_list) >= 0

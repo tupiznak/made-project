@@ -127,21 +127,25 @@ class PaperOperations:
 
     def get_n_citations(self, paper_id: str):
         """
-        :type paper_id: str
-        :type return: int
+        Возвращает количество цитирований статьи по ее ID.
 
-        # Function returns n_citations of the paper by its paper_id
+                Параметры:
+                        paper_id (str): уникальный ID статьи
+
+                Возвращаемое значение:
+                        this_n_citation (int): количество цитирований статьи
         """
         db_paper = self.find(paper_id)  # Paper(Document)
-        # TODO: what if there is no such article?
+        # TODO: если такой статьи нет?
         try:
             this_n_citation = db_paper.n_citation
             if this_n_citation is None:
                 return 0
             else:
                 return this_n_citation
-        except:  # no such field (n_citation) for the paper
-            return 0  # assume zero-citations for articles without 'n_citations' field
+        except ValueError:
+            # предполагаем 0-ое цитирование для статей без поля 'n_citations'
+            return 0
 
 
 if __name__ == '__main__':

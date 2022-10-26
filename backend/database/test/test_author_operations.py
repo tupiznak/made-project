@@ -45,7 +45,8 @@ def some_data(author_operations):
 
 
 @pytest.fixture
-def some_papers_data(paper_operations):  # papers data for h-index test
+def some_papers_data(paper_operations):
+    # данные о статьях для тестирования h-index
     p1 = paper_operations.create(Paper(_id='pid1', title='title1',
                                        n_citation=13))
     p2 = paper_operations.create(Paper(_id='pid2', title='title2',
@@ -141,8 +142,8 @@ def test_like_missing_paper(author_operations, paper_operations):
 
 
 def test_h_index(author_operations, some_data, paper_operations, some_papers_data):
-    for author in some_data:  # going through all authors
-        this_h_index = author_operations.compute_h_index(author.id)  # h-index computation
+    for author in some_data:  # пробегаемся по всем авторам
+        this_h_index = author_operations.compute_h_index(author.id)  # вычисляем h-index
     assert this_h_index >= 0 and isinstance(this_h_index, int)
 
 
