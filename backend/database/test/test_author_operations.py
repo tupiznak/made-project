@@ -50,10 +50,10 @@ def some_papers_data(paper_operations):
     p1 = paper_operations.create(Paper(_id='pid1', title='title1',
                                        n_citation=13))
     p2 = paper_operations.create(Paper(_id='pid2', title='title2',
-                                       year=1960, n_citation = 520))
+                                       year=1960, n_citation=520))
     p3 = paper_operations.create(Paper(_id='pid3', title='title3'))
     p4 = paper_operations.create(Paper(_id='pid4', title='title4',
-                                       year=1952, n_citation = None))
+                                       year=1952, n_citation=None))
     return p1, p2, p3, p4
 
 

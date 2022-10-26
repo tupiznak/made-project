@@ -1,17 +1,16 @@
-# MADE project (team 4)
+# Проект MADE, 1ый семестр (команда 4)
 
-## Main goal
-is to create a platform for scientists with recommendation algorithms of interesting articles and perspective co-author for future articles to registered author (user).
+## Цель
+создание платформы для ученых с рекомендательной системой интересных статей и потенциальных соавторов для будущих публикаций зарегистрированному пользователю (автору).
 
 ## Dataset
 
 _**Citation Network Dataset**_ – [aminer.cn](https://www.aminer.cn/citation)
 
-## Requirements
-You need `Python 3.9` or later for running the project. All packages requirements are described in `backend/requirements.txt`
+## Требования
+Вам нужен `Python 3.9` (или более поздняя версия) для работы с пректом. Все требования к пакетам прописаны в `backend/requirements.txt`
 
-## Organization
-Project is organized as follows:
+## Структура проекта
 
     made-project
     │
@@ -57,7 +56,7 @@ Project is organized as follows:
     │
     └── README.md               <- user guide README
 
-## Running database
-Go to `/docker` and run scripts `build.sh` and `run.sh` sequentially.
+## Подключение к БД
+Из директории `/docker` последовательно запустить скрипты `build.sh` и `run.sh`.
 
-After finishin your work with database run `stop.sh`.
+После завершения работы с БД запустить скрипт `stop.sh`.
