@@ -1,5 +1,14 @@
-MODEL_PATH = "backend/ml/models/lda.model"
-DICTIONARY_PATH = "backend/ml/models/dictionary.dict"
+from pathlib import Path
+
+p = Path(__file__)
+ML_PATH = p.parents[1]
+
+MODELS_PATH = ML_PATH / "models"
+
+LDA_MODEL_PATH = str(MODELS_PATH / "lda.model")
+LDA_DICTIONARY_PATH = str(MODELS_PATH / "dictionary.dict")
+
+NLTK_PATH = MODELS_PATH / "nltk"
 
 id2topic = {
     0: "machine learning",

@@ -6,11 +6,8 @@ import nltk
 from gensim import corpora, models
 from nltk.corpus import stopwords, wordnet
 from nltk.stem import WordNetLemmatizer
-
-from ml.lda.config import MODEL_PATH, DICTIONARY_PATH, id2topic
-
-english_stopwords = stopwords.words("english")
-lemmatizer = WordNetLemmatizer()
+from ml.lda.config import LDA_MODEL_PATH, LDA_DICTIONARY_PATH, NLTK_PATH, id2topic
+nltk.data.path = [str(NLTK_PATH)]
 
 
 def pos_tagger(nltk_tag):
@@ -36,56 +33,58 @@ def remove_punct(text):
     return text.translate(table)
 
 
-def preprocess(data):
-    data = map(lambda x: x.lower(), data)
-    data = map(lambda x: remove_punct(x), data)
-    data = map(lambda x: re.sub(r'\d+', ' ', x), data)
+class LDAModel:
+    def __init__(self):
+        self.english_stopwords = stopwords.words("english")
+        self.lemmatizer = WordNetLemmatizer()
+        self.model = models.LdaModel.load(LDA_MODEL_PATH)
+        self.dictionary = corpora.Dictionary.load(LDA_DICTIONARY_PATH)
 
-    data = map(lambda x: x.split(' '), data)
-    data = map(lambda x: [token for token in x if token not in english_stopwords], data)
-    data = map(lambda x: [token for token in x if token != " " and token.strip() not in punctuation], data)
+    def preprocess(self, data):
+        data = map(lambda x: x.lower(), data)
+        data = map(lambda x: remove_punct(x), data)
+        data = map(lambda x: re.sub(r'\d+', ' ', x), data)
 
-    data = map(lambda x: ' '.join(x), data)
+        data = map(lambda x: x.split(' '), data)
+        data = map(lambda x: [token for token in x if token not in self.english_stopwords], data)
+        data = map(lambda x: [token for token in x if token != " " and token.strip() not in punctuation], data)
 
-    data = list(data)
+        data = map(lambda x: ' '.join(x), data)
 
-    result = []
-    for every in data:
-        pos_tagged = nltk.pos_tag(nltk.word_tokenize(every))
-        wordnet_tagged = list(map(lambda x: (x[0], pos_tagger(x[1])), pos_tagged))
+        data = list(data)
 
-        lemmatized_sentence = []
-        for word, tag in wordnet_tagged:
-            if tag is None:
-                lemmatized_sentence.append(word)
-            else:
-                lemmatized_sentence.append(lemmatizer.lemmatize(word, tag))
-        lemmatized_sentence = " ".join(lemmatized_sentence)
+        result = []
+        for every in data:
+            pos_tagged = nltk.pos_tag(nltk.word_tokenize(every))
+            wordnet_tagged = list(map(lambda x: (x[0], pos_tagger(x[1])), pos_tagged))
 
-        result.append(lemmatized_sentence)
+            lemmatized_sentence = []
+            for word, tag in wordnet_tagged:
+                if tag is None:
+                    lemmatized_sentence.append(word)
+                else:
+                    lemmatized_sentence.append(self.lemmatizer.lemmatize(word, tag))
+            lemmatized_sentence = " ".join(lemmatized_sentence)
 
-    return result
+            result.append(lemmatized_sentence)
 
+        return result
 
-model = models.LdaModel.load(MODEL_PATH)
-dictionary = corpora.Dictionary.load(DICTIONARY_PATH)
+    def inference(self, abstracts: List[str], return_probs=False) -> List[Tuple[int, float]]:
+        papers = self.preprocess(abstracts)
 
+        list_of_list_of_tokens = list(map(lambda x: x.split(' '), papers))
 
-def inference(abstracts: List[str], return_probs=False) -> List[Tuple[int, float]]:
-    papers = preprocess(abstracts)
+        for i in range(len(list_of_list_of_tokens)):
+            list_of_list_of_tokens[i] = list(filter(lambda x: len(x) > 3, list_of_list_of_tokens[i]))
 
-    list_of_list_of_tokens = list(map(lambda x: x.split(' '), papers))
+        corpus = [self.dictionary.doc2bow(list_of_tokens) for list_of_tokens in list_of_list_of_tokens]
 
-    for i in range(len(list_of_list_of_tokens)):
-        list_of_list_of_tokens[i] = list(filter(lambda x: len(x) > 3, list_of_list_of_tokens[i]))
+        inference_result = self.model[corpus]
 
-    corpus = [dictionary.doc2bow(list_of_tokens) for list_of_tokens in list_of_list_of_tokens]
+        if return_probs:
+            result = [(id2topic[topic[0][0]], float(topic[0][1])) for topic in inference_result]
+        else:
+            result = [id2topic[topic[0][0]] for topic in inference_result]
 
-    inference_result = model[corpus]
-
-    if return_probs:
-        result = [(id2topic[topic[0][0]], float(topic[0][1])) for topic in inference_result]
-    else:
-        result = [id2topic[topic[0][0]] for topic in inference_result]
-
-    return result
+        return result
