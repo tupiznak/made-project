@@ -18,10 +18,18 @@ def paper_operations():
 
 @pytest.fixture
 def some_data(paper_operations):
-    p1 = paper_operations.create(Paper(_id='q', title='gtrgdtg', abstract='grtgrt'))
-    p2 = paper_operations.create(Paper(_id='q2', title='gtrgdtg', abstract='xa', year=2002, venue='123'))
-    p3 = paper_operations.create(Paper(_id='q22', title='gtrgdtg', abstract='grtgrt kjfwe ewr', venue='123'))
-    p4 = paper_operations.create(Paper(_id='222', title='gg', abstract='wer', year=2002, venue='32'))
+    p1 = paper_operations.create(Paper(_id='q', title='gtrgdtg', abstract='grtgrt',
+                                       n_citation=1,
+                                       authors=['a-id1', 'a-id2']))
+    p2 = paper_operations.create(Paper(_id='q2', title='gtrgdtg', abstract='xa',
+                                       year=2002, venue='123', n_citation=2,
+                                       authors=['a-id1']))
+    p3 = paper_operations.create(Paper(_id='q22', title='gtrgdtg', abstract='grtgrt kjfwe ewr',
+                                       venue='123',
+                                       authors=['a-id2']))
+    p4 = paper_operations.create(Paper(_id='222', title='gg', abstract='wer',
+                                       year=2002, venue='32', n_citation=None,
+                                       authors=[]))
     return p1, p2, p3, p4
 
 
@@ -78,3 +86,19 @@ def test_count(paper_operations, some_data):
 def test_paper_by_venue(paper_operations, some_data):
     assert set(paper_operations.get_papers_by_venue(venue_id='123', chunk_size=10)) == \
            {some_data[1], some_data[2]}
+
+
+def test_paper_citations(paper_operations, some_data):
+    # тест метода get_n_citations(paper_id: str)
+    citations_list = [paper_operations.get_n_citations(paper.id) for paper in some_data]
+    assert len(citations_list) == len(some_data)
+    assert sum(citations_list) >= 0
+    assert sum(citations_list) == 3
+
+
+def test_get_papers_by_author(paper_operations, some_data):
+    # тест метода get_papers_by_author(author_id)
+    assert set(paper_operations.get_papers_by_author(author_id='a-id1')) == \
+           {some_data[0], some_data[1]}
+    assert set(paper_operations.get_papers_by_author(author_id='a-id2')) == \
+           {some_data[0], some_data[2]}
