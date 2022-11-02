@@ -188,7 +188,7 @@ def test_h_index(author_operations, paper_operations):
 
     # несуществующий автор
     not_existing_author_id = "authorID"
-    with pytest.raises(database.db_objects.author.DoesNotExist) as excinfo:
+    with pytest.raises(database.db_objects.author.DoesNotExist) as _:
         author_operations.compute_h_index(not_existing_author_id)  # выбрасывается ошибка!
 
     # Точное значение индекса Хирша:
