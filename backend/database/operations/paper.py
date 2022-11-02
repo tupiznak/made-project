@@ -125,6 +125,21 @@ class PaperOperations:
         papers = [self.to_model(p) for p in db_objects]
         return papers
 
+    def get_papers_by_author(self, author_id: str) -> List[Paper]:
+        """
+        Возвращает статьи данного автора по его ID.
+
+                Параметры:
+                        author_id (str): уникальный ID автора
+
+                Возвращаемое значение:
+                        papers (list(Paper)): список статей автора
+        """
+        query = db.Paper.objects(authors=author_id)
+        db_objects = [o for o in query]
+        papers = [self.to_model(p) for p in db_objects]
+        return papers
+
     def get_n_citations(self, paper_id: str):
         """
         Возвращает количество цитирований статьи по ее ID.
@@ -136,16 +151,12 @@ class PaperOperations:
                         this_n_citation (int): количество цитирований статьи
         """
         db_paper = self.find(paper_id)  # Paper(Document)
-        # TODO: если такой статьи нет?
-        try:
-            this_n_citation = db_paper.n_citation
-            if this_n_citation is None:
-                return 0
-            else:
-                return this_n_citation
-        except ValueError:
+        this_n_citation = db_paper.n_citation
+        if this_n_citation is None:
             # предполагаем 0-ое цитирование для статей без поля 'n_citations'
             return 0
+        else:
+            return this_n_citation
 
 
 if __name__ == '__main__':

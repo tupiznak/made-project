@@ -1,6 +1,7 @@
 from typing import List, Union
 
 import database.db_objects.author as db
+import database.connection
 from database.connection import citations_db
 from pymongo.database import Database
 from fastapi import HTTPException
@@ -146,27 +147,32 @@ class AuthorOperations:
     def compute_h_index(self, author_id: str):
         """
         Возвращает индекс Хирша (h-index) запрашиваемого по ID автора.
-        Определение:
-        ученый имеет индекс h если h из его N статей имеют
-        хотя бы h цитирований каждая, а остальные N - h статей
-        имеют не менее h цитирований каждая
-        P.S. Сама ф-я взята здесь: https://github.com/kamyu104/LeetCode/blob/master/Python/h-index.py
+        Определение (Вики):
+        Учёный имеет индекс h, если h из его N статей цитируются как минимум h раз каждая,
+        в то время как оставшиеся (N — h) статей цитируются не более чем h раз каждая
+        P.S. Сама ф-я взята здесь: https://gist.github.com/restrepo/c5f8f9fd5504a3f93ae34dd10a5dd6b0
 
                 Параметры:
                         author_id (str): уникальный ID автора
 
                 Возвращаемое значение:
-                        (int): h-index
+                        (int): индекс Хирша (h-index)
         """
-        db_author = self.find(author_id)  # db_object of the Class Author(Document)
-        if db_author is not None:  # если такой автор вообще есть
-            all_author_papers_ids = db_author.papers  # все id'шники статей автора: list[str]
+        paper_operations = PaperOperations()
+        # проверка на наличие автора – иначе эксепшн
+        db_author = self.find(author_id)  # db_object класса Author(Document)
+
+        # все статьи автора: list[Paper]
+        all_author_papers = paper_operations.get_papers_by_author(author_id)
+        if all_author_papers is not None:  # есть статьи
             # создаем лист кол-ва цитирований статей автора (n_citations: int): list[ints]
-            citations = [0] * len(all_author_papers_ids)  # type: List[int]
-            for ind_paper, author_paper_id in enumerate(all_author_papers_ids):
-                paper_n_citations = PaperOperations.get_n_citations(author_paper_id)
+            citations = [0] * len(all_author_papers)  # type: List[int]
+            for ind_paper, author_paper in enumerate(all_author_papers):
+                paper_n_citations = paper_operations.get_n_citations(author_paper.id)
                 citations[ind_paper] = paper_n_citations
-            return sum(x >= i + 1 for i, x in enumerate(sorted(list(citations), reverse=True)))
+            return sum(x >= i + 1 for i, x in enumerate(sorted(citations, reverse=True)))
+        else:
+            return 0
 
 
 if __name__ == '__main__':

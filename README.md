@@ -8,7 +8,7 @@
 _**Citation Network Dataset**_ – [aminer.cn](https://www.aminer.cn/citation)
 
 ## Требования
-Вам нужен `Python 3.9` (или более поздняя версия) для работы с пректом. Все требования к пакетам прописаны в `backend/requirements.txt`
+Для работы над проектом нужен `Python 3.9` (или более поздняя версия).
 
 ## Структура проекта
 
@@ -36,11 +36,11 @@ _**Citation Network Dataset**_ – [aminer.cn](https://www.aminer.cn/citation)
     │
     ├── docker
     │   │
-    │   ├── build.sh            <- script for building DB
+    │   ├── build.sh            <- script for building all dockers
     │   │
-    │   ├── run.sh              <- script for running DB
+    │   ├── run.sh              <- script for running all dockers
     │   │
-    │   └── stop.sh             <- script to close DB   
+    │   └── stop.sh             <- script to close all dockers   
     │
     ├── frontend                <- frontend development
     │   │
