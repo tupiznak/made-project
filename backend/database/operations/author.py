@@ -1,7 +1,6 @@
 from typing import List, Union
 
 import database.db_objects.author as db
-import database.connection
 from database.connection import citations_db
 from pymongo.database import Database
 from fastapi import HTTPException
@@ -160,7 +159,7 @@ class AuthorOperations:
         """
         paper_operations = PaperOperations()
         # проверка на наличие автора – иначе эксепшн
-        db_author = self.find(author_id)  # db_object класса Author(Document)
+        self.find(author_id)  # db_object класса Author(Document)
 
         # все статьи автора: list[Paper]
         all_author_papers = paper_operations.get_papers_by_author(author_id)
