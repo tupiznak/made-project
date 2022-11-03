@@ -1,3 +1,4 @@
+import itertools
 from typing import List, Union
 
 import networkx as nx
@@ -172,8 +173,8 @@ class PaperOperations:
         for paper in cmd:
             authors = self.authors_id_from_paper(paper)
             graph.add_nodes_from(authors)
-            print(authors)
-        print(graph)
+            graph.add_edges_from(itertools.combinations(authors, 2))
+        return graph
 
     def get_n_citations(self, paper_id: str):
         """

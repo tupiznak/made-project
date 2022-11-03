@@ -1,6 +1,8 @@
 import mongoengine.errors
+import networkx as nx
 import pytest
 
+from database.models.author import Author
 from database.models.paper import Paper
 
 
@@ -76,9 +78,22 @@ def test_items_chunk_iter(some_data, paper_operations):
     assert set(some_data) == set(papers)
 
 
-def test_create_graph_coauthors(paper_operations, some_data):
+def test_create_graph_coauthors(paper_operations, author_operations):
+    [author_operations.create(Author(_id=i)) for i in range(10)]
+    paper_operations.create(Paper(_id='a', authors=[0, 1, 2]))
+    paper_operations.create(Paper(_id='b', authors=[0, 5, 6]))
+    paper_operations.create(Paper(_id='c', authors=[0, 8, 9]))
+    paper_operations.create(Paper(_id='d', authors=[3, 4]))
     graph = paper_operations.create_graph_coauthors()
-    print(graph)
+    need_graph = nx.Graph()
+    need_graph.add_nodes_from([0, 1, 2, 5, 6, 8, 9, 3, 4])
+    need_graph.add_edges_from([
+        [0, 1], [0, 2], [1, 2],
+        [0, 5], [0, 6], [5, 6],
+        [0, 8], [0, 9], [8, 9],
+        [3, 4],
+    ])
+    assert nx.is_isomorphic(need_graph, graph)
 
 
 def test_get_papers_by_author(paper_operations, some_data):
