@@ -2,8 +2,10 @@ import pytest
 import database.connection
 from database.models.author import Author
 from database.models.paper import Paper
+from database.models.venue import Venue
 from database.operations.author import AuthorOperations
 from database.operations.paper import PaperOperations
+from database.operations.venue import VenueOperations
 
 
 @pytest.fixture
@@ -11,6 +13,13 @@ def db():
     database.connection.disconnect_database('citations')
     database.connection.client, database.connection.citations_db = \
         database.connection.new_connection(db_name='citations_test', alias='citations')
+
+
+@pytest.fixture
+def venue_operations(db):
+    venue_operations = VenueOperations(database.connection.citations_db)
+    venue_operations.flush()
+    return venue_operations
 
 
 @pytest.fixture
@@ -82,3 +91,12 @@ def some_data(paper_operations):
                                        year=2002, venue='32', n_citation=None,
                                        authors=[]))
     return p1, p2, p3, p4
+
+
+@pytest.fixture
+def some_venue_data(venue_operations):
+    v1 = venue_operations.create(Venue(_id='q', name_d='gtrgdtg', raw='grtgrt'))
+    v2 = venue_operations.create(Venue(_id='q2', name_d='gtrgdtg', raw='xa', type=123))
+    v3 = venue_operations.create(Venue(_id='q22', name_d='gtrgdtg', raw='grtgrt kjfwe ewr', type=123))
+    v4 = venue_operations.create(Venue(_id='222', name_d='gg', raw='wer', type=32))
+    return v1, v2, v3, v4
