@@ -1,19 +1,7 @@
 import mongoengine.errors
 import pytest
 
-import database.connection
 from database.models.paper import Paper
-from database.operations.paper import PaperOperations
-
-
-@pytest.fixture
-def paper_operations():
-    database.connection.disconnect_database('citations')
-    database.connection.client, database.connection.citations_db = \
-        database.connection.new_connection(db_name='citations_test', alias='citations')
-    paper_operations = PaperOperations(database.connection.citations_db)
-    paper_operations.flush()
-    return paper_operations
 
 
 @pytest.fixture
@@ -94,6 +82,20 @@ def test_paper_citations(paper_operations, some_data):
     assert len(citations_list) == len(some_data)
     assert sum(citations_list) >= 0
     assert sum(citations_list) == 3
+
+
+def test_items_chunk_iter(some_data, paper_operations):
+    items_it = paper_operations.items_chunk_iter(chunk_size=2)
+    papers = []
+    for paper in items_it:
+        papers.extend(paper)
+    assert len(some_data) == len(papers)
+    assert set(some_data) == set(papers)
+
+
+def test_create_graph_coauthors(paper_operations, some_data):
+    graph = paper_operations.create_graph_coauthors()
+    print(graph)
 
 
 def test_get_papers_by_author(paper_operations, some_data):

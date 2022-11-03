@@ -172,7 +172,3 @@ class AuthorOperations:
             return sum(x >= i + 1 for i, x in enumerate(sorted(citations, reverse=True)))
         else:
             return 0
-
-
-if __name__ == '__main__':
-    pass

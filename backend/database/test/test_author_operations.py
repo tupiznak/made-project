@@ -4,29 +4,7 @@ from datetime import datetime
 
 import database.connection
 from database.models.author import Author, HistoryObject
-from database.operations.author import AuthorOperations
-from database.operations.paper import PaperOperations
 from database.models.paper import Paper
-
-
-@pytest.fixture
-def author_operations():
-    database.connection.disconnect_database('citations')
-    database.connection.client, database.connection.citations_db = \
-        database.connection.new_connection(db_name='citations_test', alias='citations')
-    author_operations = AuthorOperations(database.connection.citations_db)
-    author_operations.flush()
-    return author_operations
-
-
-@pytest.fixture
-def paper_operations():
-    database.connection.disconnect_database('citations')
-    database.connection.client, database.connection.citations_db = \
-        database.connection.new_connection(db_name='citations_test', alias='citations')
-    paper_operations = PaperOperations(database.connection.citations_db)
-    paper_operations.flush()
-    return paper_operations
 
 
 @pytest.fixture

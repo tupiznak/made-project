@@ -1,5 +1,7 @@
 from typing import List, Union
 
+import networkx as nx
+
 import database.db_objects.paper as db
 from database.models.paper import *
 from database.connection import citations_db
@@ -140,6 +142,39 @@ class PaperOperations:
         papers = [self.to_model(p) for p in db_objects]
         return papers
 
+    def items_chunk_iter(self, chunk_size: int = 10):
+        if chunk_size < 2:
+            raise ValueError('chunk_size need grate then 1')
+        cmd = self.collection.find().batch_size(chunk_size)
+        papers_batch = []
+        for obj in cmd:
+            papers_batch.append(self.to_model(obj))
+            if len(papers_batch) == chunk_size:
+                yield papers_batch
+                papers_batch = []
+
+    @staticmethod
+    def authors_id_from_paper(paper: dict):
+        authors_id = []
+        if paper.get('authors', None) is None:
+            return authors_id
+        for a in paper['authors']:
+            if isinstance(a, str):
+                authors_id.append(a)
+            if isinstance(a, dict):
+                if a.get('_id', None) is not None:
+                    authors_id.append(a['_id'])
+        return authors_id
+
+    def create_graph_coauthors(self, chunk_size=100):
+        graph = nx.Graph()
+        cmd = self.collection.find().batch_size(batch_size=chunk_size)
+        for paper in cmd:
+            authors = self.authors_id_from_paper(paper)
+            graph.add_nodes_from(authors)
+            print(authors)
+        print(graph)
+
     def get_n_citations(self, paper_id: str):
         """
         Возвращает количество цитирований статьи по ее ID.
@@ -157,7 +192,3 @@ class PaperOperations:
             return 0
         else:
             return this_n_citation
-
-
-if __name__ == '__main__':
-    pass

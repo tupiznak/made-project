@@ -1,5 +1,8 @@
 fastapi
 mongoengine
+plotly
+networkx
+matplotlib
 pymongo[srv]
 pydantic
 pytest
