@@ -4,6 +4,7 @@ import pytest
 
 from database.models.author import Author
 from database.models.paper import Paper
+from ml.analyze.graph_coauthors import plot_authors_graph
 
 
 def test_crud(paper_operations):
@@ -93,6 +94,8 @@ def test_create_graph_coauthors(paper_operations, author_operations):
         [0, 8], [0, 9], [8, 9],
         [3, 4],
     ])
+    fig = plot_authors_graph(graph)
+    # fig.show()
     assert nx.is_isomorphic(need_graph, graph)
 
 

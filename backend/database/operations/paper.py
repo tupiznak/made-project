@@ -1,4 +1,6 @@
 import itertools
+import logging
+from datetime import datetime
 from typing import List
 
 import networkx as nx
@@ -8,13 +10,14 @@ from pymongo.database import Database
 import database.db_objects.paper as db
 from database.connection import citations_db
 from database.models.paper import *
-from ml.analyze.graph_coauthors import plot_authors_graph
 
 
 class PaperOperations:
 
     def __init__(self, database: Database = citations_db):
         self.db = database
+        self.logger = logging.getLogger('papers_operation')
+        self.logger.setLevel(logging.INFO)
 
     @property
     def collection(self):
@@ -170,15 +173,19 @@ class PaperOperations:
 
     def create_graph_coauthors(self, chunk_size=100, full_size=None):
         graph = nx.Graph()
+        start_time = datetime.now()
         cmd = self.collection.find().batch_size(batch_size=chunk_size)
         for idx, paper in enumerate(cmd):
+            if idx % 100000 == 0:
+                self.logger.warning(
+                    f'{datetime.now() - start_time} - create_graph_coauthors - '
+                    f'processed {idx} of {full_size} - '
+                    f'{idx / full_size * 100 if full_size is not None else "-"}%')
             authors = self.authors_id_from_paper(paper)
             graph.add_nodes_from(authors)
             graph.add_edges_from(itertools.combinations(authors, 2))
             if full_size is not None and idx > full_size:
                 break
-        fig = plot_authors_graph(graph)
-        fig.show()
         return graph
 
     def get_n_citations(self, paper_id: str):
