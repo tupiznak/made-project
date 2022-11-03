@@ -4,23 +4,6 @@ import pytest
 from database.models.paper import Paper
 
 
-@pytest.fixture
-def some_data(paper_operations):
-    p1 = paper_operations.create(Paper(_id='q', title='gtrgdtg', abstract='grtgrt',
-                                       n_citation=1,
-                                       authors=['a-id1', 'a-id2']))
-    p2 = paper_operations.create(Paper(_id='q2', title='gtrgdtg', abstract='xa',
-                                       year=2002, venue='123', n_citation=2,
-                                       authors=['a-id1']))
-    p3 = paper_operations.create(Paper(_id='q22', title='gtrgdtg', abstract='grtgrt kjfwe ewr',
-                                       venue='123',
-                                       authors=['a-id2']))
-    p4 = paper_operations.create(Paper(_id='222', title='gg', abstract='wer',
-                                       year=2002, venue='32', n_citation=None,
-                                       authors=[]))
-    return p1, p2, p3, p4
-
-
 def test_crud(paper_operations):
     paper = Paper(_id='q', title='gtrgdtg', abstract='grtgrt', venue='123', authors=['author1', 'author2'])
     paper_operations.model_to_db(paper_operations.to_model(paper_operations.model_to_db(paper)))
