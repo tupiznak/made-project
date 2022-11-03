@@ -81,46 +81,71 @@ v-card
                 v-spacer
                 v-btn(
                   size="small",
-                  color="surface-variant",
+                  :color="isPaperLiked(paper._id) ? 'red' : 'surface-variant'",
                   variant="text",
-                  icon="mdi-heart"
+                  icon="mdi-heart",
+                  @click="likePaper(paper._id)"
                 )
 </template>
 
 
 <script setup>
 import { ref, onMounted } from "vue";
+import {ConfigSetup} from "../../services/ConfigSetup";
+import {LocalStorage} from "../../services/LocalStorage";
 const search = ref("");
-const config = useRuntimeConfig();
 const filteredPapers = ref([]);
 const yearFilter = ref([1900, 2020]);
 const authorFilter = ref("");
 const venueFilter = ref("");
+const localStorageService = new LocalStorage();
+const likedPapers = ref([]);
+let authorId = "";
+let serverUrl = "";
 
-onMounted(() => {
-  if (config.serverUrl.indexOf("vercel") !== -1) {
-    const currURL = document.URL;
-    const pathArray = currURL.split("/");
-    const gitPath = pathArray[2].slice(8);
-    config.serverUrl = `${pathArray[0]}//made22t4-back${gitPath}`;
-  }
+onMounted(async() => {
+  localStorageService.pushToLoginIfNotAuthenticated();
+  authorId = localStorageService.getUser()._id;
+  const configSetup = new ConfigSetup();
+  serverUrl = configSetup.getServerUrl();
+  await fetchLikedPapers();
 });
 
+const fetchLikedPapers = async () => {
+  const data = await $fetch(
+    `${serverUrl}/database/author/liked_papers?_id=${authorId}`
+  );
+  likedPapers.value = data;
+  console.log(likedPapers.value);
+};
+
+const isPaperLiked = (paper_id) => {
+  return likedPapers.value.includes(paper_id);
+};
+
+const likePaper = async (paper_id) => {
+  const data = await $fetch(
+    `${serverUrl}/database/author/update/like?_id=${authorId}&paper_id=${paper_id}`,
+    { method: "POST" }
+  );
+  await fetchLikedPapers();
+};
+
 const paperAmount = async () => {
-  const data = await $fetch(`${config.serverUrl}/database/paper/total_size`);
+  const data = await $fetch(`${serverUrl}/database/paper/total_size`);
   paperCount.value = data;
 };
 
 const find = async () => {
   const data = await $fetch(
-    `${config.serverUrl}/database/paper/abstract_substring?sub_string=${search.value}&chunk_size=10`,
+    `${serverUrl}/database/paper/abstract_substring?sub_string=${search.value}&chunk_size=10`,
     { method: "POST" }
   );
   filteredPapers.value = data;
 };
 const findByFilters = async () => {
   const data = await $fetch(
-    `${config.serverUrl}/database/paper/filter?author=${authorFilter.value}&venue=${venueFilter.value}&year_start=${yearFilter.value[0]}&year_end=${yearFilter.value[1]}&chunk_size=10`,
+    `${serverUrl}/database/paper/filter?author=${authorFilter.value}&venue=${venueFilter.value}&year_start=${yearFilter.value[0]}&year_end=${yearFilter.value[1]}&chunk_size=10`,
     { method: "POST" }
   );
   filteredPapers.value = data;

@@ -10,7 +10,7 @@ venue_operations = VenueOperations()
 @venue_router.post("/create", tags=['venue'])
 async def create_database_venue(venue: Venue):
     """
-     ## Запрос позвляет создавать событие в базе данных со следующими параметрами:
+     ## Запрос позволяет создавать событие в базе данных со следующими параметрами:
 
     - **_id**: Уникальный идентификатор события (тип string)
     - **name_d**: Наименование события (тип string)
@@ -23,7 +23,7 @@ async def create_database_venue(venue: Venue):
 @venue_router.post("/read", tags=['venue'])
 async def read_database_venue(_id: str):
     """
-     ## Запрос позвляет получать событие из базы данных со следующими параметрами:
+     ## Запрос позволяет получать событие из базы данных со следующими параметрами:
 
     - **_id**: Уникальный идентификатор события (тип string)
     - **name_d**: Наименование события (тип string)
@@ -40,7 +40,7 @@ async def read_database_venue(_id: str):
 @venue_router.post("/update", tags=['venue'])
 async def update_database_venue(venue: Venue):
     """
-     ## Запрос позвляет изменять событие в базе данных.
+     ## Запрос позволяет изменять событие в базе данных.
         Для изменения события необходимо передать следующие параметры:
 
     - **_id**: Уникальный идентификатор события (тип string)
@@ -55,7 +55,7 @@ async def update_database_venue(venue: Venue):
 @venue_router.post("/update/name", tags=['venue'])
 async def update_name_database_venue(_id: str, name_d: str):
     """
-     ## Запрос позвляет изменять название события в базе данных.
+     ## Запрос позволяет изменять название события в базе данных.
         Для изменения названия конкретного события необходимо передать два обязательных параметра:
 
         - **_id**: Уникальный идентификатор события (тип string)
@@ -67,7 +67,7 @@ async def update_name_database_venue(_id: str, name_d: str):
 @venue_router.post("/delete", tags=['venue'])
 async def delete_database_venue(_id: str):
     """
-     ## Запрос позвляет удалять событие из базы данных.
+     ## Запрос позволяет удалять событие из базы данных.
         Для удаления конкретного события из базы данных необходимо передать обязательный параметр:
         - **_id**: Уникальный идентификатор события (тип string)
     """
@@ -77,7 +77,7 @@ async def delete_database_venue(_id: str):
 @venue_router.get("/", tags=['venue'])
 async def read_database_venue(chunk_size: int = 10):
     """
-     ## Запрос позвляет получить несколько событий из базы данных.
+     ## Запрос позволяет получить несколько событий из базы данных.
         Для получения нужного количества событий необходимо передать необязательный параметр:
         - **chunk_size**: количество событий в выдаче (тип int)
 
@@ -90,7 +90,7 @@ async def read_database_venue(chunk_size: int = 10):
 @venue_router.post("/filter", tags=['venue'])
 async def filter_database_venues(venue_filter: dict, exclude_venue: dict = None, chunk_size: int = 10):
     """
-     ## Запрос позвляет получить несколько событий из базы данных по определённым условиям.
+     ## Запрос позволяет получить несколько событий из базы данных по определённым условиям.
         Для получения событий с заданными параметрами необходимо передать значение параметров в фильтры:
         - **venue_filter**: фильтр параметров, значение которых должно быть включено в выдачу,
         - **exclude_venue**: фильтр параметров, значение которых должно быть исключено из выдачи.
@@ -98,7 +98,7 @@ async def filter_database_venues(venue_filter: dict, exclude_venue: dict = None,
         Для получения нужного количества статей необходимо передать необязательный параметр:
         - **chunk_size**: количество событий в выдаче (тип int)
 
-     ### В ответ на запрос выозвращается *chunk_size* событий, параметры которых включют параметры из *paper_filter* и
+     ### В ответ на запрос возвращается *chunk_size* событий, параметры которых включают параметры из *paper_filter* и
      ### исключают параметры из *exclude_paper*
 
         -------------
@@ -110,7 +110,7 @@ async def filter_database_venues(venue_filter: dict, exclude_venue: dict = None,
 @venue_router.get("/total_size", tags=['venue'])
 async def total_size_database_venues():
     """
-     ## Запрос позвляет получить количество событий в базе данных на данный момент.
+     ## Запрос позволяет получить количество событий в базе данных на данный момент.
     """
     return venue_operations.total_size()
 
@@ -118,7 +118,7 @@ async def total_size_database_venues():
 @venue_router.get("/type", tags=['venue'])
 async def type_database_venues(type_id: int, chunk_size: int = 10):
     """
-     ## Запрос позвляет получить несколько событий из базы данных по их типу.
+     ## Запрос позволяет получить несколько событий из базы данных по их типу.
      Для получения событий по их типу, необходимо передать один обязательный параметр:
         - **type_id**: Тип события (тип string),
 
