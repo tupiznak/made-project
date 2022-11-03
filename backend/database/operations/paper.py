@@ -1,13 +1,14 @@
 import itertools
-from typing import List, Union
+from typing import List
 
 import networkx as nx
-
-import database.db_objects.paper as db
-from database.models.paper import *
-from database.connection import citations_db
 from mongoengine import QuerySet
 from pymongo.database import Database
+
+import database.db_objects.paper as db
+from database.connection import citations_db
+from database.models.paper import *
+from ml.analyze.graph_coauthors import plot_authors_graph
 
 
 class PaperOperations:
@@ -167,13 +168,17 @@ class PaperOperations:
                     authors_id.append(a['_id'])
         return authors_id
 
-    def create_graph_coauthors(self, chunk_size=100):
+    def create_graph_coauthors(self, chunk_size=100, full_size=None):
         graph = nx.Graph()
         cmd = self.collection.find().batch_size(batch_size=chunk_size)
-        for paper in cmd:
+        for idx, paper in enumerate(cmd):
             authors = self.authors_id_from_paper(paper)
             graph.add_nodes_from(authors)
             graph.add_edges_from(itertools.combinations(authors, 2))
+            if full_size is not None and idx > full_size:
+                break
+        fig = plot_authors_graph(graph)
+        fig.show()
         return graph
 
     def get_n_citations(self, paper_id: str):
