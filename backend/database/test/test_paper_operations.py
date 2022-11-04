@@ -94,8 +94,7 @@ def test_create_graph_coauthors(paper_operations, author_operations):
         [0, 8], [0, 9], [8, 9],
         [3, 4],
     ])
-    fig = plot_authors_graph(graph)
-    # fig.show()
+    plot_authors_graph(graph)  # .show()
     assert nx.is_isomorphic(need_graph, graph)
 
 
