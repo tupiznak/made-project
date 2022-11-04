@@ -63,8 +63,8 @@ def test_authors_by_org(author_operations, some_authors_data):
            {some_authors_data[0], some_authors_data[2]}
 
 
-def test_like(author_operations, paper_operations, some_data, some_papers_data):
-    author, _, _, _ = some_data
+def test_like(author_operations, paper_operations, some_authors_data, some_papers_data):
+    author, _, _, _ = some_authors_data
     paper_1, paper_2, _, _, _ = some_papers_data
     author_operations.like(paper_id=paper_1.id, _id=author.id)
     time_like_1 = datetime.now().timestamp()
@@ -110,8 +110,8 @@ def test_create_graph_coauthors(paper_operations, author_operations):
 
 
 
-def test_delete_like(author_operations, paper_operations, some_data, some_papers_data):
-    author, _, _, _ = some_data
+def test_delete_like(author_operations, paper_operations, some_authors_data, some_papers_data):
+    author, _, _, _ = some_authors_data
     paper_1, paper_2, _, _, _ = some_papers_data
     author_operations.like(paper_id=paper_1.id, _id=author.id)
     time_like_1 = datetime.now().timestamp()
@@ -131,7 +131,7 @@ def test_delete_like(author_operations, paper_operations, some_data, some_papers
         assert history_res[i].time - ao_hist[i].time <= 1
 
 
-def test_h_index(author_operations, paper_operations):
+def test_h_index(author_operations, paper_operations, some_authors_papers_data):
     author_id = "id1"  # id автора, для которого потом проверим точное занчение индекса Хирша
     # СТАТЬИ
     ppr_1, ppr_2, ppr_3, ppr_4, ppr_5, author_1, author_2 = some_authors_papers_data

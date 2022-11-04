@@ -105,3 +105,30 @@ def some_venue_data(venue_operations):
     v3 = venue_operations.create(Venue(_id='q22', name_d='gtrgdtg', raw='grtgrt kjfwe ewr', type=123))
     v4 = venue_operations.create(Venue(_id='222', name_d='gg', raw='wer', type=32))
     return v1, v2, v3, v4
+
+@pytest.fixture
+def some_authors_papers_data(author_operations, paper_operations):
+    ppr_1 = paper_operations.create(Paper(_id='pid1', title='title1', abstract='abs5',
+                                          year=1971, n_citation=3,
+                                          authors=['id1', 'id2']))
+    ppr_2 = paper_operations.create(Paper(_id='pid2', title='title2', abstract='abs5',
+                                          year=1972, n_citation=0,
+                                          authors=['id1', 'id6']))
+    ppr_3 = paper_operations.create(Paper(_id='pid3', title='title3', abstract='abs5',
+                                          year=1973, n_citation=6,
+                                          authors=['id1', 'id13']))
+    ppr_4 = paper_operations.create(Paper(_id='pid4', title='title4', abstract='abs5',
+                                          year=1974, n_citation=1,
+                                          authors=['id0', 'id1', 'idN']))
+    ppr_5 = paper_operations.create(Paper(_id='pid5', title='title5', abstract='abs5',
+                                          year=1975, n_citation=5,
+                                          authors=['id15', 'id2', 'id1']))
+    # АВТОРЫ
+    author_1 = author_operations.create(Author(_id='id1', name='Nikolay Lobachevsky',
+                                               org='Lebedev Physical Institute',
+                                               papers=['pid1', 'pid2', 'pid3', 'pid4', 'pid5']))
+    author_2 = author_operations.create(Author(_id='id2', name='Pafnuty Chebyshev',
+                                               org='St Petersburg University',
+                                               gid='gid2', oid='123', papers=['pid3', 'pid1', 'pid5']))
+    return ppr_1, ppr_2, ppr_3, ppr_4, ppr_5, author_1, author_2
+
