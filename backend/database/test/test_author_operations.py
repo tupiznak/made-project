@@ -1,12 +1,12 @@
-import mongoengine.errors
-import pytest
 from datetime import datetime
 
 import database.connection
+import mongoengine.errors
+import pytest
 from database.models.author import Author, HistoryObject
+from database.models.paper import Paper
 from database.operations.author import AuthorOperations
 from database.operations.paper import PaperOperations
-from database.models.paper import Paper
 
 
 @pytest.fixture
@@ -32,17 +32,17 @@ def paper_operations():
 @pytest.fixture
 def some_data(author_operations):
     a1 = author_operations.create(Author(_id='q', name='gtrgdtg',
-                                         org='grtgrt'))
+                                         org='grtgrt', papers=[]))
     # a1: papers=['pid4']
     a2 = author_operations.create(Author(_id='q2', name='gtrgdtg',
                                          org='xa',
-                                         gid='sdaf', oid='123'))
+                                         gid='sdaf', oid='123', papers=[]))
     # a2: papers=['pid3']
     a3 = author_operations.create(Author(_id='q22', name='gtrgdtg',
-                                         org='grtgrt', oid='123'))
+                                         org='grtgrt', oid='123', papers=[]))
     # a3: papers=[]
     a4 = author_operations.create(Author(_id='222', name='gg',
-                                         org='wer',
+                                         org='wer', papers=[],
                                          gid='sdaf', oid='32'))
     # a4: papers=['pid1', 'pid2', 'pid3', 'pid4', 'pid5']
     return a1, a2, a3, a4
@@ -67,6 +67,33 @@ def some_papers_data(paper_operations):
                                        year=1982, n_citation=5,
                                        authors=['222']))
     return p1, p2, p3, p4, p5
+
+
+@pytest.fixture
+def some_authors_papers_data(author_operations, paper_operations):
+    ppr_1 = paper_operations.create(Paper(_id='pid1', title='title1', abstract='abs5',
+                                          year=1971, n_citation=3,
+                                          authors=['id1', 'id2']))
+    ppr_2 = paper_operations.create(Paper(_id='pid2', title='title2', abstract='abs5',
+                                          year=1972, n_citation=0,
+                                          authors=['id1', 'id6']))
+    ppr_3 = paper_operations.create(Paper(_id='pid3', title='title3', abstract='abs5',
+                                          year=1973, n_citation=6,
+                                          authors=['id1', 'id13']))
+    ppr_4 = paper_operations.create(Paper(_id='pid4', title='title4', abstract='abs5',
+                                          year=1974, n_citation=1,
+                                          authors=['id0', 'id1', 'idN']))
+    ppr_5 = paper_operations.create(Paper(_id='pid5', title='title5', abstract='abs5',
+                                          year=1975, n_citation=5,
+                                          authors=['id15', 'id2', 'id1']))
+    # АВТОРЫ
+    author_1 = author_operations.create(Author(_id='id1', name='Nikolay Lobachevsky',
+                                               org='Lebedev Physical Institute',
+                                               papers=['pid1', 'pid2', 'pid3', 'pid4', 'pid5']))
+    author_2 = author_operations.create(Author(_id='id2', name='Pafnuty Chebyshev',
+                                               org='St Petersburg University',
+                                               gid='gid2', oid='123', papers=['pid3', 'pid1', 'pid5']))
+    return ppr_1, ppr_2, ppr_3, ppr_4, ppr_5, author_1, author_2
 
 
 def test_crud(author_operations):
@@ -121,63 +148,58 @@ def test_authors_by_org(author_operations, some_data):
            {some_data[0], some_data[2]}
 
 
-def test_like(author_operations, paper_operations):
-    author = Author(_id='qwertyu', name='gtrgdtg', org='grtgrt', oid='123', papers=['asdf', 'zxcv'],
-                    history=[])
-    paper_1 = Paper(_id='qwerty', title='asdf', abstract='jkl', year=2012, authors=['ss', 'dd'])
-    paper_2 = Paper(_id='zxc', title='asdfs', abstract='jklww', year=2011, authors=['sns', 'ddn'])
-    paper_operations.create(paper_1)
-    paper_operations.create(paper_2)
-    author_operations.create(author)
-    author_operations.like(paper_1.id, author.id)
+def test_like(author_operations, paper_operations, some_data, some_papers_data):
+    author, _, _, _ = some_data
+    paper_1, paper_2, _, _, _ = some_papers_data
+    author_operations.like(paper_id=paper_1.id, _id=author.id)
     time_like_1 = datetime.now().timestamp()
-    author_operations.like(paper_2.id, author.id)
+    author_operations.like(paper_id=paper_2.id, _id=author.id)
     time_like_2 = datetime.now().timestamp()
-    history = [HistoryObject(event='like', time=time_like_1, description=paper_1.id),
-               HistoryObject(event='like', time=time_like_2, description=paper_2.id)]
+    history_res = [HistoryObject(event='like', time=time_like_1, description=paper_1.id),
+                   HistoryObject(event='like', time=time_like_2, description=paper_2.id)]
     ao_likes = author_operations.get_liked_papers(author.id)
     ao_hist = author_operations.get_history(author.id)
-    assert ao_likes == [paper_1.id, paper_2.id]
-    assert [ao_hist[0].event, ao_hist[1].event] == [history[0].event, history[0].event]
-    assert [ao_hist[0].description, ao_hist[1].description] == [history[0].description, history[1].description]
-    assert history[0].time - ao_hist[0].time <= 1
-    assert history[1].time - ao_hist[1].time <= 1
+    assert ao_likes == [paper_2.id, paper_1.id]
+    for i in range(len(history_res)):
+        assert ao_hist[i].event == history_res[i].event
+        assert ao_hist[i].description == history_res[i].description
+        assert history_res[i].time - ao_hist[i].time <= 1
 
 
 def test_like_missing_paper(author_operations, paper_operations):
     author = Author(_id='qwertyu', name='gtrgdtg', org='grtgrt', oid='123', papers=['asdf', 'zxcv'],
                     history=[])
     missing_paper_id = 'missing'
-    with pytest.raises(database.db_objects.paper.DoesNotExist) as excinfo:
+    with pytest.raises(mongoengine.errors.DoesNotExist) as excinfo:
         author_operations.like(missing_paper_id, author.id)
     assert "Paper matching query does not exist." in str(excinfo.value)
 
 
-def test_h_index(author_operations, paper_operations):
+def test_delete_like(author_operations, paper_operations, some_data, some_papers_data):
+    author, _, _, _ = some_data
+    paper_1, paper_2, _, _, _ = some_papers_data
+    author_operations.like(paper_id=paper_1.id, _id=author.id)
+    time_like_1 = datetime.now().timestamp()
+    author_operations.like(paper_id=paper_2.id, _id=author.id)
+    time_like_2 = datetime.now().timestamp()
+    author_operations.delete_like(paper_id=paper_1.id, _id=author.id)
+    time_del_like_1 = datetime.now().timestamp()
+    history_res = [HistoryObject(event='like', time=time_like_1, description=paper_1.id),
+                   HistoryObject(event='like', time=time_like_2, description=paper_2.id),
+                   HistoryObject(event='unlike', time=time_del_like_1, description=paper_1.id), ]
+    ao_likes = author_operations.get_liked_papers(author.id)
+    ao_hist = author_operations.get_history(author.id)
+    assert ao_likes == [paper_2.id]
+    for i in range(len(history_res)):
+        assert ao_hist[i].event == history_res[i].event
+        assert ao_hist[i].description == history_res[i].description
+        assert history_res[i].time - ao_hist[i].time <= 1
+
+
+def test_h_index(author_operations, paper_operations, some_authors_papers_data):
     author_id = "id1"  # id автора, для которого потом проверим точное занчение индекса Хирша
     # СТАТЬИ
-    ppr_1 = paper_operations.create(Paper(_id='pid1', title='title1', abstract='abs5',
-                                          year=1971, n_citation=3,
-                                          authors=[author_id, 'id2']))
-    ppr_2 = paper_operations.create(Paper(_id='pid2', title='title2', abstract='abs5',
-                                          year=1972, n_citation=0,
-                                          authors=[author_id, 'id6']))
-    ppr_3 = paper_operations.create(Paper(_id='pid3', title='title3', abstract='abs5',
-                                          year=1973, n_citation=6,
-                                          authors=[author_id, 'id13']))
-    ppr_4 = paper_operations.create(Paper(_id='pid4', title='title4', abstract='abs5',
-                                          year=1974, n_citation=1,
-                                          authors=['id0', author_id, 'idN']))
-    ppr_5 = paper_operations.create(Paper(_id='pid5', title='title5', abstract='abs5',
-                                          year=1975, n_citation=5,
-                                          authors=['id15', 'id2', author_id]))
-    # АВТОРЫ
-    author_1 = author_operations.create(Author(_id=author_id, name='Nikolay Lobachevsky',
-                                               org='Lebedev Physical Institute'))
-    author_2 = author_operations.create(Author(_id='id2', name='Pafnuty Chebyshev',
-                                               org='St Petersburg University',
-                                               gid='gid2', oid='123', papers=['pid3']))
-
+    ppr_1, ppr_2, ppr_3, ppr_4, ppr_5, author_1, author_2 = some_authors_papers_data
     assert set(paper_operations.get_papers_by_author(author_id=author_id)) == \
            {ppr_1, ppr_2, ppr_3, ppr_4, ppr_5}  # корректный поиск статей автора
 
@@ -188,7 +210,7 @@ def test_h_index(author_operations, paper_operations):
 
     # несуществующий автор
     not_existing_author_id = "authorID"
-    with pytest.raises(database.db_objects.author.DoesNotExist) as _:
+    with pytest.raises(mongoengine.errors.DoesNotExist) as _:
         author_operations.compute_h_index(not_existing_author_id)  # выбрасывается ошибка!
 
     # Точное значение индекса Хирша:
@@ -199,22 +221,30 @@ def test_h_index(author_operations, paper_operations):
     assert author_operations.compute_h_index(author_id=author_id) == 3
 
 
-# def test_delete_like(author_operations, paper_operations):
-#     author = Author(_id='qwertyu', name='gtrgdtg', org='grtgrt', oid='123', papers=['asdf', 'zxcv'],
-#                     history=[])
-#     paper_1 = Paper(_id='qwerty', title='asdf', abstract='jkl', year=2012, authors=['ss', 'dd'])
-#     paper_2 = Paper(_id='zxc', title='asdfs', abstract='jklww', year=2011, authors=['sns', 'ddn'])
-#     paper_operations.create(paper_1)
-#     paper_operations.create(paper_2)
-#     author_operations.create(author)
-#     author_operations.like(paper_id=paper_1.id, _id=author.id)
-#     author_operations.like(paper_id=paper_2.id, _id=author.id)
-#     time_like_2 = datetime.now().timestamp()
-#     author_operations.delete_like(paper_id=paper_1.id, _id=author.id)
-#     history = [HistoryObject(event='like', time=time_like_2, description=paper_2.id)]
-#     ao_likes = author_operations.get_liked_papers(author.id)
-#     ao_hist = author_operations.get_history(author.id)
-#     assert ao_likes == [paper_2.id]
-#     assert ao_hist[0].event == history[0].event
-#     assert ao_hist[0].description == history[0].description
-#     assert history[0].time - ao_hist[0].time <= 1
+def test_set_h_index(author_operations, paper_operations, some_authors_papers_data):
+    author_id = "id1"  # id автора, для которого потом проверим точное занчение индекса Хирша
+    # СТАТЬИ
+    ppr_1, ppr_2, ppr_3, ppr_4, ppr_5, author_1, author_2 = some_authors_papers_data
+    author_without_papers = author_operations.create(Author(_id='id3', name='cvb', papers=[]))
+    for author in [author_1, author_2, author_without_papers]:  # пробегаемся по всем авторам
+        author_operations.set_h_index(author.id)  # устанавливаем h-index
+    author_1_from_db = author_operations.get_by_id(author_1.id)
+    author_2_from_db = author_operations.get_by_id(author_2.id)
+    author_without_papers_from_db = author_operations.get_by_id(author_without_papers.id)
+    assert author_1_from_db.h_index == 3
+    assert author_2_from_db.h_index == 3
+    assert author_without_papers_from_db.h_index == 0
+
+    # несуществующий автор
+    not_existing_author_id = "authorID"
+    with pytest.raises(mongoengine.errors.DoesNotExist) as _:
+        author_operations.set_h_index(not_existing_author_id)  # выбрасывается ошибка!
+
+
+def test_get_top_h_index_authors(author_operations, some_authors_papers_data):
+    ppr_1, ppr_2, ppr_3, ppr_4, ppr_5, author_1, author_2 = some_authors_papers_data
+    author_without_papers = author_operations.create(Author(_id='id3', name='cvb', papers=[]))
+    for author in [author_1, author_2, author_without_papers]:  # пробегаемся по всем авторам
+        author_operations.set_h_index(author.id)  # устанавливаем h-index
+    assert author_operations.get_top_h_index_authors(1) == ['id1']
+    assert author_operations.get_top_h_index_authors(3) == ['id1', 'id2', 'id3']

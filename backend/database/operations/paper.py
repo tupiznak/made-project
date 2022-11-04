@@ -1,8 +1,12 @@
 from typing import List, Union
-
-import database.db_objects.paper as db
-from database.models.paper import *
-from database.connection import citations_db
+try:
+    import backend.database.db_objects.paper as db
+    from backend.database.models.paper import *
+    from backend.database.connection import citations_db
+except ModuleNotFoundError:
+    import database.db_objects.paper as db
+    from database.models.paper import *
+    from database.connection import citations_db
 from mongoengine import QuerySet
 from pymongo.database import Database
 
