@@ -1,4 +1,7 @@
+from functools import lru_cache
 from typing import List, Union
+
+import networkx as nx
 
 import database.db_objects.author as db
 from database.connection import citations_db
@@ -142,6 +145,21 @@ class AuthorOperations:
         history = self.get_history(_id=_id)
         liked_papers = list(map(lambda x: x.description, filter(lambda x: x.event == 'like', history)))
         return liked_papers
+
+    @lru_cache(0)
+    def create_graph_coauthors_by_author(self, author_id: str):
+        paper_operations = PaperOperations()
+        author = self.get_by_id(author_id)
+
+        papers = author.papers
+        graph = nx.Graph()
+        for p in papers:
+            paper = paper_operations.get_by_id(p)
+            coauthors = paper_operations.authors_id_from_paper(paper.dict())
+            coauthors = tuple(filter(lambda c: c != author_id, coauthors))
+            graph.add_nodes_from(coauthors)
+            graph.add_edges_from([(author_id, c) for c in coauthors])
+        return graph
 
     def compute_h_index(self, author_id: str):
         """
