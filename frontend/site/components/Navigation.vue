@@ -38,6 +38,7 @@ export default {
       menuItems: [
         { title: 'Home', path: '/' },
         { title: 'Dashboard', path: '/dashboard' },
+        { title: 'Analytics', path: '/analytics' },
       ],
       authItems: [
         { title: 'Sign In', path: '/login' },
