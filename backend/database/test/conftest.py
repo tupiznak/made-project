@@ -3,6 +3,7 @@ import database.connection
 from database.models.author import Author
 from database.models.paper import Paper
 from database.models.venue import Venue
+from database.operations import Operations
 from database.operations.author import AuthorOperations
 from database.operations.paper import PaperOperations
 from database.operations.venue import VenueOperations
@@ -16,22 +17,28 @@ def db():
 
 
 @pytest.fixture
-def venue_operations(db):
-    venue_operations = VenueOperations(database.connection.citations_db)
+def operations(db):
+    operations = Operations(database.connection.citations_db)
+    return operations
+
+
+@pytest.fixture
+def venue_operations(operations):
+    venue_operations = operations.venue
     venue_operations.flush()
     return venue_operations
 
 
 @pytest.fixture
-def author_operations(db):
-    author_operations = AuthorOperations(database.connection.citations_db)
+def author_operations(operations):
+    author_operations = operations.author
     author_operations.flush()
     return author_operations
 
 
 @pytest.fixture
-def paper_operations(db):
-    paper_operations = PaperOperations(database.connection.citations_db)
+def paper_operations(operations):
+    paper_operations = operations.paper
     paper_operations.flush()
     return paper_operations
 

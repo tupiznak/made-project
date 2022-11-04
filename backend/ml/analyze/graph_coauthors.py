@@ -5,6 +5,7 @@ import plotly.graph_objects as go
 
 def plot_authors_graph(authors: nx.Graph, strip_count: int = 100):
     sorted_top_authors = list(sorted(authors.degree, key=lambda item: item[1], reverse=True)[:strip_count])
+    print(authors)
     weights = dict(sorted_top_authors)
     max_weight = sorted_top_authors[0][1]
 

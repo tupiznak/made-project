@@ -6,17 +6,21 @@ from typing import List
 
 import networkx as nx
 from mongoengine import QuerySet
-from pymongo.database import Database
 
 import database.db_objects.paper as db
-from database.connection import citations_db
 from database.models.paper import *
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .operations import Operations
 
 
 class PaperOperations:
 
-    def __init__(self, database: Database = citations_db):
-        self.db = database
+    def __init__(self, operations: 'Operations'):
+        self.operations = operations
+        self.db = operations.db
         self.logger = logging.getLogger('papers_operation')
         self.logger.setLevel(logging.INFO)
 
@@ -42,8 +46,11 @@ class PaperOperations:
         return db.Paper(**paper.dict(by_alias=True))
 
     def create(self, paper: Paper) -> Paper:
+        author_operations = self.operations.author
         db_paper = self.model_to_db(paper)
         db_paper.save(force_insert=True)
+        for a in paper.authors:
+            author_operations.add_paper(a, paper.id)
         return paper
 
     def find(self, _id: str) -> db.Paper:

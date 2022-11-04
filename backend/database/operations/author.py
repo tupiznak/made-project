@@ -14,8 +14,9 @@ from database.operations.paper import PaperOperations
 
 class AuthorOperations:
 
-    def __init__(self, database: Database = citations_db):
-        self.db = database
+    def __init__(self, operations):
+        self.operations = operations
+        self.db = operations.db
 
     @property
     def collection(self):
@@ -146,9 +147,15 @@ class AuthorOperations:
         liked_papers = list(map(lambda x: x.description, filter(lambda x: x.event == 'like', history)))
         return liked_papers
 
-    @lru_cache(0)
+    def add_paper(self, author_id: str, paper_id: str):
+        author = self.find(author_id)
+        if paper_id not in author.papers:
+            author.papers.append(paper_id)
+        author.save()
+
+    @lru_cache(10)
     def create_graph_coauthors_by_author(self, author_id: str):
-        paper_operations = PaperOperations()
+        paper_operations = self.operations.paper
         author = self.get_by_id(author_id)
 
         papers = author.papers
