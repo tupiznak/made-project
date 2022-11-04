@@ -12,6 +12,8 @@ from database.models.paper import *
 
 from typing import TYPE_CHECKING
 
+from ..db_objects import author
+
 if TYPE_CHECKING:
     from .operations import Operations
 
@@ -50,7 +52,10 @@ class PaperOperations:
         db_paper = self.model_to_db(paper)
         db_paper.save(force_insert=True)
         for a in paper.authors:
-            author_operations.add_paper(a, paper.id)
+            try:
+                author_operations.add_paper(a, paper.id)
+            except author.DoesNotExist:
+                pass
         return paper
 
     def find(self, _id: str) -> db.Paper:

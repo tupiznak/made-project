@@ -1,12 +1,10 @@
 import pytest
+
 import database.connection
 from database.models.author import Author
 from database.models.paper import Paper
 from database.models.venue import Venue
 from database.operations import Operations
-from database.operations.author import AuthorOperations
-from database.operations.paper import PaperOperations
-from database.operations.venue import VenueOperations
 
 
 @pytest.fixture
@@ -19,27 +17,27 @@ def db():
 @pytest.fixture
 def operations(db):
     operations = Operations(database.connection.citations_db)
+    operations.paper.flush()
+    operations.author.flush()
+    operations.venue.flush()
     return operations
 
 
 @pytest.fixture
 def venue_operations(operations):
     venue_operations = operations.venue
-    venue_operations.flush()
     return venue_operations
 
 
 @pytest.fixture
 def author_operations(operations):
     author_operations = operations.author
-    author_operations.flush()
     return author_operations
 
 
 @pytest.fixture
 def paper_operations(operations):
     paper_operations = operations.paper
-    paper_operations.flush()
     return paper_operations
 
 

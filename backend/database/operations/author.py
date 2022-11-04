@@ -2,14 +2,10 @@ from functools import lru_cache
 from typing import List, Union
 
 import networkx as nx
-
-import database.db_objects.author as db
-from database.connection import citations_db
-from pymongo.database import Database
 from fastapi import HTTPException
 
+import database.db_objects.author as db
 from database.models.author import Author, HistoryObject
-from database.operations.paper import PaperOperations
 
 
 class AuthorOperations:
@@ -109,7 +105,7 @@ class AuthorOperations:
         return authors
 
     def like(self, paper_id: str, _id: str) -> Author:
-        paper_operations = PaperOperations()
+        paper_operations = self.operations.paper
         paper_exist = paper_operations.find(paper_id)
         if paper_exist:
             db_author = self.find(_id)
@@ -125,7 +121,7 @@ class AuthorOperations:
 
     def delete_like(self, paper_id: str, _id: str) -> Author:
         db_author = self.find(_id)
-        paper_operations = PaperOperations()
+        paper_operations = self.operations.paper
         paper_exist = paper_operations.find(paper_id)
         if paper_exist:
             if paper_id in map(lambda x: x.description, filter(lambda x: x.event == 'like', db_author.history)):
@@ -182,7 +178,7 @@ class AuthorOperations:
                 Возвращаемое значение:
                         (int): индекс Хирша (h-index)
         """
-        paper_operations = PaperOperations()
+        paper_operations = self.operations.paper
         # проверка на наличие автора – иначе эксепшн
         self.find(author_id)  # db_object класса Author(Document)
 
