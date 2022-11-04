@@ -5,6 +5,4 @@ networkx
 pymongo[srv]
 numpy
 pydantic
-pytest
-flake8
 starlette_exporter
