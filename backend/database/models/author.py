@@ -1,7 +1,5 @@
 from pydantic import BaseModel, Field
 
-from database.models.paper import Paper
-
 
 class HistoryObject(BaseModel):
     event: str
