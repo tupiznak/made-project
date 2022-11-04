@@ -1,7 +1,11 @@
-from fastapi import APIRouter
+from io import StringIO
 
-from database.operations.paper import PaperOperations
+from fastapi import APIRouter
+from fastapi.responses import HTMLResponse
+
 from database.models.paper import Paper
+from database.operations.paper import PaperOperations
+from ml.analyze.graph_coauthors import plot_authors_graph
 
 paper_router = APIRouter(prefix='/paper')
 paper_operations = PaperOperations()
@@ -151,6 +155,17 @@ async def total_size_database_papers():
      ## Запрос позволяет получить количество статей в базе данных на данный момент.
     """
     return paper_operations.total_size()
+
+
+@paper_router.get("/coauthors_graph", tags=['paper'], response_class=HTMLResponse)
+async def coauthors_graph(maximum_papers: int = 100):
+    """
+     ## Запрос возвращает html с полным графом соавторов.
+    """
+    buff = StringIO()
+    fig = plot_authors_graph(paper_operations.create_graph_coauthors(full_size=maximum_papers))
+    fig.write_html(buff, include_plotlyjs='cdn')
+    return HTMLResponse(content=buff.getvalue(), status_code=200)
 
 
 @paper_router.get("/venue", tags=['paper'])

@@ -1,20 +1,30 @@
-from typing import List, Union
-try:
-    import backend.database.db_objects.paper as db
-    from backend.database.models.paper import *
-    from backend.database.connection import citations_db
-except ModuleNotFoundError:
-    import database.db_objects.paper as db
-    from database.models.paper import *
-    from database.connection import citations_db
+import itertools
+import logging
+from datetime import datetime
+from functools import lru_cache
+from typing import List
+
+import networkx as nx
 from mongoengine import QuerySet
-from pymongo.database import Database
+
+import database.db_objects.paper as db
+from database.models.paper import *
+
+from typing import TYPE_CHECKING
+
+from ..db_objects import author
+
+if TYPE_CHECKING:
+    from .operations import Operations
 
 
 class PaperOperations:
 
-    def __init__(self, database: Database = citations_db):
-        self.db = database
+    def __init__(self, operations: 'Operations'):
+        self.operations = operations
+        self.db = operations.db
+        self.logger = logging.getLogger('papers_operation')
+        self.logger.setLevel(logging.INFO)
 
     @property
     def collection(self):
@@ -38,8 +48,14 @@ class PaperOperations:
         return db.Paper(**paper.dict(by_alias=True))
 
     def create(self, paper: Paper) -> Paper:
+        author_operations = self.operations.author
         db_paper = self.model_to_db(paper)
         db_paper.save(force_insert=True)
+        for a in paper.authors:
+            try:
+                author_operations.add_paper(a, paper.id)
+            except author.DoesNotExist:
+                pass
         return paper
 
     def find(self, _id: str) -> db.Paper:
@@ -144,6 +160,48 @@ class PaperOperations:
         papers = [self.to_model(p) for p in db_objects]
         return papers
 
+    def items_chunk_iter(self, chunk_size: int = 10):
+        if chunk_size < 2:
+            raise ValueError('chunk_size need grate then 1')
+        cmd = self.collection.find().batch_size(chunk_size)
+        papers_batch = []
+        for obj in cmd:
+            papers_batch.append(self.to_model(obj))
+            if len(papers_batch) == chunk_size:
+                yield papers_batch
+                papers_batch = []
+
+    @staticmethod
+    def authors_id_from_paper(paper: dict):
+        authors_id = []
+        if paper.get('authors', None) is None:
+            return authors_id
+        for a in paper['authors']:
+            if isinstance(a, str):
+                authors_id.append(a)
+            if isinstance(a, dict):
+                if a.get('_id', None) is not None:
+                    authors_id.append(a['_id'])
+        return authors_id
+
+    @lru_cache(10)
+    def create_graph_coauthors(self, chunk_size=100, full_size=None):
+        graph = nx.Graph()
+        start_time = datetime.now()
+        cmd = self.collection.find().batch_size(batch_size=chunk_size)
+        for idx, paper in enumerate(cmd):
+            if idx % 100000 == 0:
+                self.logger.warning(
+                    f'{datetime.now() - start_time} - create_graph_coauthors - '
+                    f'processed {idx} of {full_size} - '
+                    f'{idx / full_size * 100 if full_size is not None else "-"}%')
+            authors = self.authors_id_from_paper(paper)
+            graph.add_nodes_from(authors)
+            graph.add_edges_from(itertools.combinations(authors, 2))
+            if full_size is not None and idx > full_size:
+                break
+        return graph
+
     def get_n_citations(self, paper_id: str):
         """
         Возвращает количество цитирований статьи по ее ID.
@@ -161,7 +219,3 @@ class PaperOperations:
             return 0
         else:
             return this_n_citation
-
-
-if __name__ == '__main__':
-    pass
