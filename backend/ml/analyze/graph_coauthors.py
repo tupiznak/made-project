@@ -26,7 +26,7 @@ def plot_authors_graph(authors: nx.Graph, strip_count: int = 100):
     else:
         edge_poses = np.array(((0, 0), (0, 0), (np.nan, np.nan)))
 
-    sizes = nodes_data[:, 2] / (max_weight - 0)
+    sizes = nodes_data[:, 2]
 
     nodes = go.Scatter(
         x=nodes_data[:, 0], y=nodes_data[:, 1],
@@ -42,7 +42,7 @@ def plot_authors_graph(authors: nx.Graph, strip_count: int = 100):
             colorscale='Hot',
             reversescale=True,
             color=sizes,
-            size=sizes * 1000,
+            size=sizes / max_weight * 1000,
             sizemin=10,
             sizemode='area',
             colorbar=dict(
@@ -59,7 +59,21 @@ def plot_authors_graph(authors: nx.Graph, strip_count: int = 100):
         mode='lines'
     )
 
-    fig = go.Figure(data=[edges, nodes])
+    fig = go.Figure(
+        data=[edges, nodes],
+        layout={
+            'showlegend': False,
+            'xaxis': {
+                'showgrid': False,
+                'zeroline': False,
+                'visible': False,
+            },
+            'yaxis': {
+                'showgrid': False,
+                'zeroline': False,
+                'visible': False,
+            }
+        })
     return fig
 
 

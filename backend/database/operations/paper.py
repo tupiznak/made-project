@@ -1,6 +1,7 @@
 import itertools
 import logging
 from datetime import datetime
+from functools import lru_cache
 from typing import List
 
 import networkx as nx
@@ -171,6 +172,7 @@ class PaperOperations:
                     authors_id.append(a['_id'])
         return authors_id
 
+    @lru_cache(10)
     def create_graph_coauthors(self, chunk_size=100, full_size=None):
         graph = nx.Graph()
         start_time = datetime.now()

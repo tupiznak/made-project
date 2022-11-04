@@ -3,8 +3,8 @@ from io import StringIO
 from fastapi import APIRouter
 from fastapi.responses import HTMLResponse
 
-from database.operations.paper import PaperOperations
 from database.models.paper import Paper
+from database.operations.paper import PaperOperations
 from ml.analyze.graph_coauthors import plot_authors_graph
 
 paper_router = APIRouter(prefix='/paper')
