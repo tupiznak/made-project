@@ -1,18 +1,18 @@
+from functools import lru_cache
 from typing import List, Union
 
-import database.db_objects.author as db
-from database.connection import citations_db
-from pymongo.database import Database
+import networkx as nx
 from fastapi import HTTPException
 
+import database.db_objects.author as db
 from database.models.author import Author, HistoryObject
-from database.operations.paper import PaperOperations
 
 
 class AuthorOperations:
 
-    def __init__(self, database: Database = citations_db):
-        self.db = database
+    def __init__(self, operations):
+        self.operations = operations
+        self.db = operations.db
 
     @property
     def collection(self):
@@ -105,7 +105,7 @@ class AuthorOperations:
         return authors
 
     def like(self, paper_id: str, _id: str) -> Author:
-        paper_operations = PaperOperations()
+        paper_operations = self.operations.paper
         paper_exist = paper_operations.find(paper_id)
         if paper_exist:
             db_author = self.find(_id)
@@ -121,7 +121,7 @@ class AuthorOperations:
 
     def delete_like(self, paper_id: str, _id: str) -> Author:
         db_author = self.find(_id)
-        paper_operations = PaperOperations()
+        paper_operations = self.operations.paper
         paper_exist = paper_operations.find(paper_id)
         if paper_exist:
             if paper_id in map(lambda x: x.description, filter(lambda x: x.event == 'like', db_author.history)):
@@ -143,6 +143,27 @@ class AuthorOperations:
         liked_papers = list(map(lambda x: x.description, filter(lambda x: x.event == 'like', history)))
         return liked_papers
 
+    def add_paper(self, author_id: str, paper_id: str):
+        author = self.find(author_id)
+        if paper_id not in author.papers:
+            author.papers.append(paper_id)
+        author.save()
+
+    @lru_cache(10)
+    def create_graph_coauthors_by_author(self, author_id: str):
+        paper_operations = self.operations.paper
+        author = self.get_by_id(author_id)
+
+        papers = author.papers
+        graph = nx.Graph()
+        for p in papers:
+            paper = paper_operations.get_by_id(p)
+            coauthors = paper_operations.authors_id_from_paper(paper.dict())
+            coauthors = tuple(filter(lambda c: c != author_id, coauthors))
+            graph.add_nodes_from(coauthors)
+            graph.add_edges_from([(author_id, c) for c in coauthors])
+        return graph
+
     def compute_h_index(self, author_id: str):
         """
         Возвращает индекс Хирша (h-index) запрашиваемого по ID автора.
@@ -157,7 +178,7 @@ class AuthorOperations:
                 Возвращаемое значение:
                         (int): индекс Хирша (h-index)
         """
-        paper_operations = PaperOperations()
+        paper_operations = self.operations.paper
         # проверка на наличие автора – иначе эксепшн
         self.find(author_id)  # db_object класса Author(Document)
 
@@ -172,7 +193,3 @@ class AuthorOperations:
             return sum(x >= i + 1 for i, x in enumerate(sorted(citations, reverse=True)))
         else:
             return 0
-
-
-if __name__ == '__main__':
-    pass

@@ -1,7 +1,11 @@
+from io import StringIO
+
 from fastapi import APIRouter
+from fastapi.responses import HTMLResponse
 
 from database.operations.author import AuthorOperations
 from database.models.author import Author
+from ml.analyze.graph_coauthors import plot_authors_graph
 
 author_router = APIRouter(prefix='/author')
 author_operations = AuthorOperations()
@@ -167,6 +171,18 @@ async def update_unlike_database_author(_id: str, paper_id: str):
         - **paper_id**: Уникальный идентификатор статьи, которая понравилась автору (тип string)
     """
     return author_operations.delete_like(paper_id=paper_id, _id=_id)
+
+
+@author_router.get("/coauthors_graph", tags=['author'], response_class=HTMLResponse)
+async def coauthors_graph(author_id: str):
+    """
+     ## Запрос возвращает html с полным графом соавторов.
+    """
+    buff = StringIO()
+    fig = plot_authors_graph(author_operations
+                             .create_graph_coauthors_by_author(author_id=author_id))
+    fig.write_html(buff, include_plotlyjs='cdn')
+    return HTMLResponse(content=buff.getvalue(), status_code=200)
 
 
 @author_router.get("/history", tags=['author'])

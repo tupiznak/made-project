@@ -1,6 +1,9 @@
 fastapi
 mongoengine
+plotly
+networkx
 pymongo[srv]
+numpy
 pydantic
 pytest
 flake8
