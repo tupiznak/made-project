@@ -1,11 +1,10 @@
+from datetime import datetime
+
+import mongoengine.errors
 import mongoengine.errors
 import networkx as nx
 import pytest
-from datetime import datetime
 
-import database.connection
-import mongoengine.errors
-import pytest
 from database.models.author import Author, HistoryObject
 from database.models.paper import Paper
 from ml.analyze.graph_coauthors import plot_authors_graph
@@ -108,8 +107,6 @@ def test_create_graph_coauthors(paper_operations, author_operations):
     assert nx.is_isomorphic(need_graph, graph)
 
 
-
-
 def test_delete_like(author_operations, paper_operations, some_authors_data, some_papers_data):
     author, _, _, _ = some_authors_data
     paper_1, paper_2, _, _, _ = some_papers_data
@@ -156,9 +153,7 @@ def test_h_index(author_operations, paper_operations, some_authors_papers_data):
     assert author_operations.compute_h_index(author_id=author_id) == 3
 
 
-def test_set_h_index(author_operations, paper_operations, some_authors_papers_data):
-    author_id = "id1"  # id автора, для которого потом проверим точное занчение индекса Хирша
-    # СТАТЬИ
+def test_set_h_index(author_operations, some_authors_papers_data):
     ppr_1, ppr_2, ppr_3, ppr_4, ppr_5, author_1, author_2 = some_authors_papers_data
     author_without_papers = author_operations.create(Author(_id='id3', name='cvb', papers=[]))
     for author in [author_1, author_2, author_without_papers]:  # пробегаемся по всем авторам

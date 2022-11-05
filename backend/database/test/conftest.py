@@ -106,6 +106,7 @@ def some_venue_data(venue_operations):
     v4 = venue_operations.create(Venue(_id='222', name_d='gg', raw='wer', type=32))
     return v1, v2, v3, v4
 
+
 @pytest.fixture
 def some_authors_papers_data(author_operations, paper_operations):
     ppr_1 = paper_operations.create(Paper(_id='pid1', title='title1', abstract='abs5',
@@ -131,4 +132,3 @@ def some_authors_papers_data(author_operations, paper_operations):
                                                org='St Petersburg University',
                                                gid='gid2', oid='123', papers=['pid3', 'pid1', 'pid5']))
     return ppr_1, ppr_2, ppr_3, ppr_4, ppr_5, author_1, author_2
-
