@@ -50,7 +50,3 @@ async def read_root():
         "message": "Welcome to my notes application, use the /docs route to proceed"
     }
 
-from fastapi.responses import HTMLResponse
-@app.get("/test", response_class=HTMLResponse)
-async def test():
-    return HTMLResponse(content='<html><h1>test</h1></html>', status_code=200)
