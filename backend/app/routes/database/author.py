@@ -3,12 +3,12 @@ from io import StringIO
 from fastapi import APIRouter
 from fastapi.responses import HTMLResponse
 
-from database.operations.author import AuthorOperations
+from database.operations import Operations
 
 from database.models.author import Author
 from ml.analyze.graph_coauthors import plot_authors_graph
 author_router = APIRouter(prefix='/author')
-author_operations = AuthorOperations()
+author_operations = Operations().author
 
 
 @author_router.post("/create", tags=['author'])

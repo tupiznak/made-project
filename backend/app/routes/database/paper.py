@@ -4,11 +4,11 @@ from fastapi import APIRouter
 from fastapi.responses import HTMLResponse
 
 from database.models.paper import Paper
-from database.operations.paper import PaperOperations
+from database.operations import Operations
 from ml.analyze.graph_coauthors import plot_authors_graph
 
 paper_router = APIRouter(prefix='/paper')
-paper_operations = PaperOperations()
+paper_operations = Operations().paper
 
 
 @paper_router.post("/create", tags=['paper'])

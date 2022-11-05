@@ -7,6 +7,7 @@ from fastapi import HTTPException
 import database.db_objects.author as db
 from database.models.author import Author, HistoryObject
 
+
 class AuthorOperations:
 
     def __init__(self, operations):
