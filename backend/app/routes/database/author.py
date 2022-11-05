@@ -212,7 +212,7 @@ async def get_author_liked_papers(_id: str):
 
 
 @author_router.get("/get_top_authors", tags=['author'])
-async def get_author_liked_papers(top_n: int = 10):
+async def get_top_h_index_authors(top_n: int = 10):
     """
      ## Запрос позволяет получить из базы данных топ авторов по индексу Хирша.
         Для получения топа авторов можно передать один необязательный параметр:

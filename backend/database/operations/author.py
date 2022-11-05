@@ -189,13 +189,11 @@ class AuthorOperations:
 
         # все статьи автора: list[Paper]
         all_author_papers = author.papers
-        # all_author_papers = paper_operations.get_papers_by_author(author_id)
         if all_author_papers is not None:  # есть статьи
-            # создаем лист кол-ва цитирований статей автора (n_citations: int): list[ints]
-            citations = [0] * len(all_author_papers)  # type: List[int]
-            for ind_paper, author_paper in enumerate(all_author_papers):
-                paper_n_citations = paper_operations.get_n_citations(author_paper)  # author_paper.id)
-                citations[ind_paper] = paper_n_citations
+            citations = [doc['n_citation'] for doc in
+                         paper_operations.collection.find(
+                             {"_id": {"$in": all_author_papers}, "n_citation": {"$exists": True}},
+                             {"n_citation": 1, "_id": 0})]
             return sum(x >= i + 1 for i, x in enumerate(sorted(citations, reverse=True)))
         else:
             return 0
