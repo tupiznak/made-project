@@ -12,7 +12,7 @@ from database.models.paper import *
 
 from typing import TYPE_CHECKING
 
-from ..db_objects import author
+from database.db_objects import author
 
 if TYPE_CHECKING:
     from .operations import Operations
