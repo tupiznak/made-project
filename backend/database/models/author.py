@@ -10,6 +10,7 @@ class HistoryObject(BaseModel):
 class Author(BaseModel):
     id: str = Field(alias='_id')
     name: str = None
+    h_index: int = None
     org: str = None
     gid: str = None
     oid: str = None

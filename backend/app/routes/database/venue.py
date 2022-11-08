@@ -1,10 +1,10 @@
 from fastapi import APIRouter
 
-from database.operations.venue import VenueOperations
+from database.operations import Operations
 from database.models.venue import Venue
 
 venue_router = APIRouter(prefix='/venue')
-venue_operations = VenueOperations()
+venue_operations = Operations().venue
 
 
 @venue_router.post("/create", tags=['venue'])
