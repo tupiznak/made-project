@@ -6,7 +6,7 @@ import pymongo.errors
 from pymongo import UpdateMany
 from pymongo.database import Database
 
-from connection import citations_db
+from .connection import citations_db
 
 logging.basicConfig(level=logging.NOTSET)
 logger = logging.getLogger('papers_splitter')
