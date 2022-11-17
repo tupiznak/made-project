@@ -56,6 +56,7 @@ def split_collections(test_size=0.3, chunk_size=1000):
     collection_test = COLLECTION_TEST
     total_count = database.get_collection(collection).estimated_document_count()
     total_count_test = database.get_collection(collection_test).estimated_document_count()
+    database[collection_test].create_index('authors')
     logger.info(f'start splitting... before sizes: train = {total_count}, test = {total_count_test}')
     try:
         database.create_collection(collection_test)
@@ -68,20 +69,26 @@ def split_collections(test_size=0.3, chunk_size=1000):
         logger.info(f'delta {test_count=}')
         return
 
-    batch_gen = get_many_gen(database=database, collection=collection, batch_size=chunk_size, total_size=test_count,
-                             downloaded_chunk_size=chunk_size)
-
-    batches_cnt = (test_count // chunk_size + 1)
-    used_papers = []
-    for batch_idx, doc_batch in enumerate(batch_gen):
-        if batch_idx >= batches_cnt:
-            break
+    exist_papers = set()
+    while True:
+        doc_batch = list(database.get_collection(collection).aggregate([
+            {"$sample": {"size": chunk_size}}
+        ]))
+        doc_batch = [d for d in doc_batch if d['_id'] not in exist_papers]
+        if len(doc_batch) == 0:
+            logger.warning(f'batch size empty after filter')
+            continue
         writer(doc_list=convertor(doc_batch), database=database)
-        used_papers.extend([p['_id'] for p in doc_batch])
-        logger.debug(f'split {batch_idx * chunk_size / test_count * 100:.2f}%')
+        exist_papers |= set(d['_id'] for d in doc_batch)
+        logger.debug(f'split {len(exist_papers) / test_count * 100:.2f}% curr test papers {len(exist_papers)}')
+        if len(exist_papers) >= test_count:
+            break
 
     logger.info(f'remove papers from train')
-    database.get_collection(collection).delete_many({'_id': {'$in': used_papers}})
+    exist_papers = list(exist_papers)
+    for part in range(len(exist_papers) // chunk_size + 1):
+        database.get_collection(collection).delete_many(
+            {'_id': {'$in': exist_papers[part * chunk_size:(part + 1) * chunk_size]}})
 
     total_count = database.get_collection(collection).estimated_document_count()
     total_count_test = database.get_collection(collection_test).estimated_document_count()
@@ -95,6 +102,7 @@ def merge_collections(batch_size=1000):
     collection_test = COLLECTION_TEST
     author_col = database.get_collection('author')
     total_count = database.get_collection(collection_test).estimated_document_count()
+    database[collection_test].create_index('authors')
     logger.info(f'start merging... {total_count}')
 
     for batch_idx, doc_batch in enumerate(get_many_gen(
@@ -135,6 +143,12 @@ class DeltaTimeHandler(logging.StreamHandler):
 
 
 if __name__ == '__main__':
+    col_new = citations_db[COLLECTION_TEST]
+    col_old = citations_db[COLLECTION]
+    for el in col_new.find():
+        col_old.delete_one({'_id': el['_id']})
+    exit()
+
     parser = argparse.ArgumentParser(description='database initialisation module')
     parser.add_argument('--preprocessed-file', metavar='preprocessed_file', type=bool, default=True,
                         help='is file preprocessed? (correct.txt) [default: True]', required=False)
@@ -152,5 +166,5 @@ if __name__ == '__main__':
     handler.setFormatter(formatter)
     logger.addHandler(handler)
     logger.propagate = False
-    merge_collections()
+    # merge_collections()
     split_collections()
