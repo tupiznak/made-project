@@ -76,7 +76,7 @@ def split_collections(test_size=0.3, chunk_size=1000):
         ]))
         doc_batch = [d for d in doc_batch if d['_id'] not in exist_papers]
         if len(doc_batch) == 0:
-            logger.warning(f'batch size empty after filter')
+            logger.warning('batch size empty after filter')
             continue
         writer(doc_list=convertor(doc_batch), database=database)
         exist_papers |= set(d['_id'] for d in doc_batch)
@@ -84,7 +84,7 @@ def split_collections(test_size=0.3, chunk_size=1000):
         if len(exist_papers) >= test_count:
             break
 
-    logger.info(f'remove papers from train')
+    logger.info('remove papers from train')
     exist_papers = list(exist_papers)
     for part in range(len(exist_papers) // chunk_size + 1):
         database.get_collection(collection).delete_many(
@@ -143,12 +143,6 @@ class DeltaTimeHandler(logging.StreamHandler):
 
 
 if __name__ == '__main__':
-    col_new = citations_db[COLLECTION_TEST]
-    col_old = citations_db[COLLECTION]
-    for el in col_new.find():
-        col_old.delete_one({'_id': el['_id']})
-    exit()
-
     parser = argparse.ArgumentParser(description='database initialisation module')
     parser.add_argument('--preprocessed-file', metavar='preprocessed_file', type=bool, default=True,
                         help='is file preprocessed? (correct.txt) [default: True]', required=False)

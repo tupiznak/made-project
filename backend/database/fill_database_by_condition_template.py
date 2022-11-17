@@ -1,8 +1,8 @@
 import argparse
 import logging
+
 from pymongo import UpdateOne
 from pymongo.database import Database
-from pprint import pprint
 
 from connection import citations_db
 
