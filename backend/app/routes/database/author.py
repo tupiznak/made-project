@@ -1,10 +1,14 @@
+from io import StringIO
+
 from fastapi import APIRouter
+from fastapi.responses import HTMLResponse
 
-from database.operations.author import AuthorOperations
+from database.operations import Operations
+
 from database.models.author import Author
-
+from ml.analyze.graph_coauthors import plot_authors_graph
 author_router = APIRouter(prefix='/author')
-author_operations = AuthorOperations()
+author_operations = Operations().author
 
 
 @author_router.post("/create", tags=['author'])
@@ -169,6 +173,18 @@ async def update_unlike_database_author(_id: str, paper_id: str):
     return author_operations.delete_like(paper_id=paper_id, _id=_id)
 
 
+@author_router.get("/coauthors_graph", tags=['author'], response_class=HTMLResponse)
+async def coauthors_graph(author_id: str):
+    """
+     ## Запрос возвращает html с полным графом соавторов.
+    """
+    buff = StringIO()
+    fig = plot_authors_graph(author_operations
+                             .create_graph_coauthors_by_author(author_id=author_id))
+    fig.write_html(buff, include_plotlyjs='cdn')
+    return HTMLResponse(content=buff.getvalue(), status_code=200)
+
+
 @author_router.get("/history", tags=['author'])
 async def get_history_database_author(_id: str):
     """
@@ -193,3 +209,18 @@ async def get_author_liked_papers(_id: str):
         ### В ответ на запрос возвращается список статей, понравившихся автору
     """
     return author_operations.get_liked_papers(_id)
+
+
+@author_router.get("/get_top_authors", tags=['author'])
+async def get_top_h_index_authors(top_n: int = 10):
+    """
+     ## Запрос позволяет получить из базы данных топ авторов по индексу Хирша.
+        Для получения топа авторов можно передать один необязательный параметр:
+
+        - **top_n**: Количество авторов в топе (тип string)
+
+        ### В ответ на запрос возвращается список авторов в порядке убывания индекса Хирша
+
+        По умолчанию параметр **top_n** имеет значение 10
+    """
+    return author_operations.get_top_h_index_authors(top_n=top_n)

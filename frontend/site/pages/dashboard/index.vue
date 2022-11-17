@@ -100,20 +100,20 @@ const authorFilter = ref("");
 const venueFilter = ref("");
 const localStorageService = new LocalStorage();
 const likedPapers = ref([]);
-let authorId = "";
-let serverUrl = "";
+const authorId = ref("");
+const serverUrl = ref("");
 
 onMounted(async() => {
   localStorageService.pushToLoginIfNotAuthenticated();
-  authorId = localStorageService.getUser()._id;
+  authorId.value = localStorageService.getUser()._id;
   const configSetup = new ConfigSetup();
-  serverUrl = configSetup.getServerUrl();
+  serverUrl.value = configSetup.getServerUrl();
   await fetchLikedPapers();
 });
 
 const fetchLikedPapers = async () => {
   const data = await $fetch(
-    `${serverUrl}/database/author/liked_papers?_id=${authorId}`
+    `${serverUrl.value}/database/author/liked_papers?_id=${authorId.value}`
   );
   likedPapers.value = data;
   console.log(likedPapers.value);
@@ -125,27 +125,27 @@ const isPaperLiked = (paper_id) => {
 
 const likePaper = async (paper_id) => {
   const data = await $fetch(
-    `${serverUrl}/database/author/update/like?_id=${authorId}&paper_id=${paper_id}`,
+    `${serverUrl.value}/database/author/update/like?_id=${authorId.value}&paper_id=${paper_id}`,
     { method: "POST" }
   );
   await fetchLikedPapers();
 };
 
 const paperAmount = async () => {
-  const data = await $fetch(`${serverUrl}/database/paper/total_size`);
+  const data = await $fetch(`${serverUrl.value}/database/paper/total_size`);
   paperCount.value = data;
 };
 
 const find = async () => {
   const data = await $fetch(
-    `${serverUrl}/database/paper/abstract_substring?sub_string=${search.value}&chunk_size=10`,
+    `${serverUrl.value}/database/paper/abstract_substring?sub_string=${search.value}&chunk_size=10`,
     { method: "POST" }
   );
   filteredPapers.value = data;
 };
 const findByFilters = async () => {
   const data = await $fetch(
-    `${serverUrl}/database/paper/filter?author=${authorFilter.value}&venue=${venueFilter.value}&year_start=${yearFilter.value[0]}&year_end=${yearFilter.value[1]}&chunk_size=10`,
+    `${serverUrl.value}/database/paper/filter?author=${authorFilter.value}&venue=${venueFilter.value}&year_start=${yearFilter.value[0]}&year_end=${yearFilter.value[1]}&chunk_size=10`,
     { method: "POST" }
   );
   filteredPapers.value = data;

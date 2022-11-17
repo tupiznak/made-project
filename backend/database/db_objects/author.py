@@ -1,5 +1,6 @@
-from mongoengine import *
 from datetime import datetime
+
+from mongoengine import *
 
 
 class HistoryObject(EmbeddedDocument):
@@ -13,6 +14,12 @@ class HistoryObject(EmbeddedDocument):
                    time=datetime.now().timestamp(),
                    description=paper_id)
 
+    @classmethod
+    def create_unlike_object(cls, paper_id: str):
+        return cls(event='unlike',
+                   time=datetime.now().timestamp(),
+                   description=paper_id)
+
 
 class Author(Document):
     _id = StringField()
@@ -21,7 +28,8 @@ class Author(Document):
     gid = StringField()
     oid = StringField()
     orgid = StringField()
+    h_index = IntField()
     papers = ListField(StringField())
-    history = EmbeddedDocumentListField(HistoryObject)
+    history = EmbeddedDocumentListField(HistoryObject)  # list of paper id's
 
     meta = {'strict': False, 'db_alias': 'citations'}

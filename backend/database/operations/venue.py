@@ -2,15 +2,13 @@ from typing import List, Union
 
 import database.db_objects.venue as db
 from database.models.venue import *
-from database.connection import citations_db
-# from mongoengine import QuerySet
-from pymongo.database import Database
 
 
 class VenueOperations:
 
-    def __init__(self, database: Database = citations_db):
-        self.db = database
+    def __init__(self, operations):
+        self.operations = operations
+        self.db = operations.db
 
     @property
     def collection(self):

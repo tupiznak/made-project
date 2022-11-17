@@ -1,28 +1,10 @@
 import mongoengine.errors
+import networkx as nx
 import pytest
 
-import database.connection
+from database.models.author import Author
 from database.models.paper import Paper
-from database.operations.paper import PaperOperations
-
-
-@pytest.fixture
-def paper_operations():
-    database.connection.disconnect_database('citations')
-    database.connection.client, database.connection.citations_db = \
-        database.connection.new_connection(db_name='citations_test', alias='citations')
-    paper_operations = PaperOperations(database.connection.citations_db)
-    paper_operations.flush()
-    return paper_operations
-
-
-@pytest.fixture
-def some_data(paper_operations):
-    p1 = paper_operations.create(Paper(_id='q', title='gtrgdtg', abstract='grtgrt'))
-    p2 = paper_operations.create(Paper(_id='q2', title='gtrgdtg', abstract='xa', year=2002, venue='123'))
-    p3 = paper_operations.create(Paper(_id='q22', title='gtrgdtg', abstract='grtgrt kjfwe ewr', venue='123'))
-    p4 = paper_operations.create(Paper(_id='222', title='gg', abstract='wer', year=2002, venue='32'))
-    return p1, p2, p3, p4
+from ml.analyze.graph_coauthors import plot_authors_graph
 
 
 def test_crud(paper_operations):
@@ -78,3 +60,47 @@ def test_count(paper_operations, some_data):
 def test_paper_by_venue(paper_operations, some_data):
     assert set(paper_operations.get_papers_by_venue(venue_id='123', chunk_size=10)) == \
            {some_data[1], some_data[2]}
+
+
+def test_paper_citations(paper_operations, some_data):
+    # тест метода get_n_citations(paper_id: str)
+    citations_list = [paper_operations.get_n_citations(paper.id) for paper in some_data]
+    assert len(citations_list) == len(some_data)
+    assert sum(citations_list) >= 0
+    assert sum(citations_list) == 3
+
+
+def test_items_chunk_iter(some_data, paper_operations):
+    items_it = paper_operations.items_chunk_iter(chunk_size=2)
+    papers = []
+    for paper in items_it:
+        papers.extend(paper)
+    assert len(some_data) == len(papers)
+    assert set(some_data) == set(papers)
+
+
+def test_create_graph_coauthors(paper_operations, author_operations):
+    [author_operations.create(Author(_id=i)) for i in range(10)]
+    paper_operations.create(Paper(_id='a', authors=[0, 1, 2]))
+    paper_operations.create(Paper(_id='b', authors=[0, 5, 6]))
+    paper_operations.create(Paper(_id='c', authors=[0, 8, 9]))
+    paper_operations.create(Paper(_id='d', authors=[3, 4]))
+    graph = paper_operations.create_graph_coauthors()
+    need_graph = nx.Graph()
+    need_graph.add_nodes_from([0, 1, 2, 5, 6, 8, 9, 3, 4])
+    need_graph.add_edges_from([
+        [0, 1], [0, 2], [1, 2],
+        [0, 5], [0, 6], [5, 6],
+        [0, 8], [0, 9], [8, 9],
+        [3, 4],
+    ])
+    plot_authors_graph(graph)  # .show()
+    assert nx.is_isomorphic(need_graph, graph)
+
+
+def test_get_papers_by_author(paper_operations, some_data):
+    # тест метода get_papers_by_author(author_id)
+    assert set(paper_operations.get_papers_by_author(author_id='a-id1')) == \
+           {some_data[0], some_data[1]}
+    assert set(paper_operations.get_papers_by_author(author_id='a-id2')) == \
+           {some_data[0], some_data[2]}

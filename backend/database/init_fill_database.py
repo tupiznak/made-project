@@ -40,7 +40,9 @@ def write_data(pair: tuple[Database, dict]):
                     authors_by_paper[d['_id']].append(author)
                     author_by_author_id[author['_id']] = author
                     papers_by_author_id[author['_id']].append(d['_id'])
-            d['authors'] = [author['_id'] for author in authors_by_paper[d['_id']]]
+            d['authors'] = list(set(author['_id'] for author in authors_by_paper[d['_id']]))
+        else:
+            d['authors'] = []
 
         paper = d
         papers.append(paper)
@@ -81,7 +83,7 @@ def write_data(pair: tuple[Database, dict]):
             pass
 
     db['author'].bulk_write([UpdateOne(filter={'_id': author_id},
-                                       update={'$push': {'papers': {'$each': paper_ids}}})
+                                       update={'$addToSet': {'papers': {'$each': paper_ids}}})
                              for author_id, paper_ids in papers_by_author_id.items()])
 
 
@@ -109,6 +111,8 @@ def init_database_fast(jsonl_path: str, flush: bool = False,
     if flush:
         client.drop_database(citations_db.name)
     citations_db['paper'].create_index('venue')
+    citations_db['paper'].create_index('authors')
+    citations_db['author'].create_index('papers')
     connections: tuple[Database] = tuple(new_connection()[1] for _ in range(parallel_db_writers))
     parsed_stack = []
     curr_objects_count = 0

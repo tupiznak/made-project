@@ -10,7 +10,6 @@ from database.connection import connect
 
 _ = connect
 
-
 app = FastAPI()
 app.add_middleware(PrometheusMiddleware)
 app.add_route("/metrics", metric_request)
