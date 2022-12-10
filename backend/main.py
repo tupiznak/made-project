@@ -6,6 +6,7 @@ from starlette_exporter import PrometheusMiddleware
 
 from app.routes.database import database_router
 from app.routes.metrics import metric_request
+from app.routes.model import model_router
 from database.connection import connect
 
 _ = connect
@@ -41,6 +42,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(database_router)
+app.include_router(model_router)
 
 
 @app.get("/", tags=["Root"])

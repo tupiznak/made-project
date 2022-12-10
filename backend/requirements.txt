@@ -14,3 +14,4 @@ bokeh
 marshmallow-dataclass
 flake8
 starlette_exporter
+qdrant-client
