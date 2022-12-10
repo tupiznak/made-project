@@ -1,0 +1,26 @@
+title_params:
+  corpus_path: "corpus/corpus.txt"
+  title_regex: "^[\\s\\S]{20,}$"
+  use_lowercase: "True"
+  drop_symbols: "?!@#$.:,"
+  data_size_limit: 100000
+
+# Для понимания параметров модели
+# https://fasttext.cc/docs/en/unsupervised-tutorial.html
+train_params:
+  model_path: "models/fasttext_vectorizer.bin"
+  model: "skipgram"
+  dim: 100    # default 100
+  minn: 3     # default 3
+  maxn: 6     # default 6
+  epoch: 5    # default 5
+  lr: 0.05    # default 0.05
+  thread: 12  # default 12
+
+plot_params:
+  plot_path: "plots/umap_plot.html"
+  sample_size: 10000
+  umap_n_neghb: 10
+  umap_metric: "cosine"
+  umap_n_components: 2
+  umap_min_dist: 0.01

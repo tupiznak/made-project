@@ -1,0 +1,31 @@
+schema: '2.0'
+stages:
+  make_corpus:
+    cmd: python make_corpus.py vectorisation_config.yml
+    deps:
+    - path: make_corpus.py
+      md5: 58d7a82537c11ae22859b2bd8dec8d93
+      size: 1781
+    - path: vectorisation_config.yml
+      md5: 1c0e0f0212c42d5eae9332fb9bf789a8
+      size: 681
+    outs:
+    - path: corpus/corpus.txt
+      md5: 8ed8e1fed962cd6d32f2c522d54773c5
+      size: 5715604
+  train_vectorizer:
+    cmd: python train.py vectorisation_config.yml
+    deps:
+    - path: corpus/corpus.txt
+      md5: 8ed8e1fed962cd6d32f2c522d54773c5
+      size: 5715604
+    - path: train.py
+      md5: 2785a98771e50c116c53df436c0c5a73
+      size: 1018
+    - path: vectorisation_config.yml
+      md5: 5d1bf3de07aae2fc09385d77a1361b8d
+      size: 663
+    outs:
+    - path: models/fasttext_vectorizer.bin
+      md5: df97fdf098f229883529030e1803193d
+      size: 808309581
