@@ -32,11 +32,12 @@ def writer(database: Database, doc_list: list[dict], model: fasttext.FastText):
     author_col = database.get_collection('author')
 
     # database.get_collection(collection_test).insert_many(doc_list)
+    # print(doc_list)
     author_col.bulk_write([UpdateMany(
         filter={'_id': {'$in': el['authors']}},
         update={'$set': {
             f'vectorized_papers.{el["_id"]}': model.get_word_vector(el["title"]).tolist()}})
-        for el in (doc_list) if el.get('authors', None) is not None])
+        for el in doc_list if el.get('authors', None) is not None])
 
 
 @click.command("set_author_embedding")
@@ -48,7 +49,7 @@ def set_author_embedding(config_path: str):
     database = citations_db
     # author_operations = Operations().author
     collection = "paper"  # author_operations.collection
-    model = fasttext.load_model("fasttext_skipgram.bin")
+    model = fasttext.load_model("models/fasttext_vectorizer.bin")
 
     init_time = datetime.now()
     for batch_cnt, papers in enumerate(get_many_gen(database, collection, batch_size)):
