@@ -25,8 +25,8 @@ if __name__ == '__main__':
     print(client.get_collection(collection_name=COL_NAME))
 
     author_batch = [
-        {'_id': 'a', 'papers_vectorized': {'a1': [1., 2., 3., 4., 5.], 'a2': [4., 2., 3., 4., 5.]}},
-        {'_id': 'b', 'papers_vectorized': {'b1': [1., 5., 3., 4., 5.], 'b2': [4., 6., 3., 4., 5.]}}
+        {'_id': '53f463c1dabfaee1c0b5dff2', 'papers_vectorized': {'a1': [1., 2., 3., 4., 5.], 'a2': [4., 2., 3., 4., 5.]}},
+        {'_id': '53f63b2edabfae597a2898a5', 'papers_vectorized': {'b1': [1., 5., 3., 4., 5.], 'b2': [4., 6., 3., 4., 5.]}}
     ]
 
     operation_info = client.upsert(
