@@ -16,6 +16,7 @@ logger = logging.getLogger('qdrant_init')
 logger.setLevel(level=logging.DEBUG)
 
 COL_NAME = 'authors'
+VECTOR_LENGTH = 100
 CHUNK_SIZE = 1000
 
 
@@ -39,7 +40,7 @@ if __name__ == '__main__':
     client = QdrantClient(host="qdrant", port=6333)
     client.recreate_collection(
         collection_name=COL_NAME,
-        vectors_config=VectorParams(size=5, distance=Distance.COSINE),
+        vectors_config=VectorParams(size=VECTOR_LENGTH, distance=Distance.COSINE),
     )
     total = citations_db.get_collection('author').estimated_document_count()
     logger.info(f'count: {total}')
@@ -47,24 +48,24 @@ if __name__ == '__main__':
     for author_batch in get_many_gen(database=citations_db, collection='author', chunk_size=CHUNK_SIZE):
         curr += len(author_batch)
 
-        author_batch = [
-            {'_id': '53f463c1dabfaee1c0b5dff2',
-             'papers_vectorized': {'a1': [1., 2., 3., 4., 5.], 'a2': [4., 2., 3., 4., 5.]}},
-            {'_id': '53f63b2edabfae597a2898a5',
-             'papers_vectorized': {'b1': [1., 5., 3., 4., 5.], 'b2': [4., 6., 3., 4., 5.]}}
-        ]
+        # author_batch = [
+        #     {'_id': '53f463c1dabfaee1c0b5dff2',
+        #      'papers_vectorized': {'a1': [1., 2., 3., 4., 5.], 'a2': [4., 2., 3., 4., 5.]}},
+        #     {'_id': '53f63b2edabfae597a2898a5',
+        #      'papers_vectorized': {'b1': [1., 5., 3., 4., 5.], 'b2': [4., 6., 3., 4., 5.]}}
+        # ]
 
         operation_info = client.upsert(
             collection_name=COL_NAME,
             wait=True,
             points=[PointStruct(id=comp_hash(author['_id']),
-                                vector=comp_vec(author['papers_vectorized']),
+                                vector=comp_vec(author['vectorized_papers']),
                                 payload={'id': author['_id']})
-                    for author in author_batch]
+                    for author in author_batch if author.get('vectorized_papers', False)]
         )
         logger.debug(f'progress {curr / total * 100:.2f}%')
 
-    print(client.search(collection_name=COL_NAME, query_vector=[1., 2., 3., 4., 5.], limit=1)[0].payload)
-    print(client.search(collection_name=COL_NAME, query_vector=[1., 5., 3., 4., 5.], limit=1)[0].payload)
-    print(client.search(collection_name=COL_NAME, query_vector=[4., 2., 3., 4., 5.], limit=1)[0].payload)
-    print(client.search(collection_name=COL_NAME, query_vector=[4., 6., 3., 4., 5.], limit=1)[0].payload)
+    # print(client.search(collection_name=COL_NAME, query_vector=[1., 2., 3., 4., 5.], limit=1)[0].payload)
+    # print(client.search(collection_name=COL_NAME, query_vector=[1., 5., 3., 4., 5.], limit=1)[0].payload)
+    # print(client.search(collection_name=COL_NAME, query_vector=[4., 2., 3., 4., 5.], limit=1)[0].payload)
+    # print(client.search(collection_name=COL_NAME, query_vector=[4., 6., 3., 4., 5.], limit=1)[0].payload)

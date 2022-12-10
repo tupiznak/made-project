@@ -9,9 +9,6 @@ from pymongo.database import Database
 from database.connection import citations_db
 from database.split_train_test import DeltaTimeHandler, DeltaTimeFormatter
 
-# logging.basicConfig(level=logging.NOTSET)
-# database_changer_logger = logging.getLogger('database_changer')
-# database_changer_logger.setLevel(level=logging.DEBUG)
 OBJECTS_COUNT = 5354308
 
 logging.basicConfig(level=logging.NOTSET)
