@@ -7,25 +7,37 @@ stages:
       md5: 58d7a82537c11ae22859b2bd8dec8d93
       size: 1781
     - path: vectorisation_config.yml
-      md5: 1c0e0f0212c42d5eae9332fb9bf789a8
-      size: 681
+      md5: d6735d966c437f4439022aaf683b3fc4
+      size: 728
     outs:
     - path: corpus/corpus.txt
-      md5: 8ed8e1fed962cd6d32f2c522d54773c5
+      md5: 4dfdfd379372f308a64be582041a981d
       size: 5715604
   train_vectorizer:
     cmd: python train.py vectorisation_config.yml
     deps:
     - path: corpus/corpus.txt
-      md5: 8ed8e1fed962cd6d32f2c522d54773c5
+      md5: 4dfdfd379372f308a64be582041a981d
       size: 5715604
     - path: train.py
       md5: 2785a98771e50c116c53df436c0c5a73
       size: 1018
     - path: vectorisation_config.yml
-      md5: 5d1bf3de07aae2fc09385d77a1361b8d
-      size: 663
+      md5: d6735d966c437f4439022aaf683b3fc4
+      size: 728
     outs:
     - path: models/fasttext_vectorizer.bin
-      md5: df97fdf098f229883529030e1803193d
+      md5: 521cd485a168fae43f40376f0f9b0182
       size: 808309581
+  make_author_embeddings:
+    cmd: python
+  plot_umap:
+    cmd: python plot_umap.py vectorisation_config.yml
+    deps:
+    - path: models/fasttext_vectorizer.bin
+      md5: 521cd485a168fae43f40376f0f9b0182
+      size: 808309581
+    outs:
+    - path: plots/umap_plot.html
+      md5: dea2723bb0ba3867ffce0bcffb3be704
+      size: 296610

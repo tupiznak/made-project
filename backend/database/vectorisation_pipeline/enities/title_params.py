@@ -37,10 +37,16 @@ class PlotUmapParams:
 
 
 @dataclass()
+class AuthoEmbeddingsParams:
+    batch_size: int
+
+
+@dataclass()
 class VectorizingPipelineParams:
     title_params: TitleParams
     train_params: TrainVectorizerParams
     plot_params: PlotUmapParams
+    author_embeddings_params: AuthoEmbeddingsParams
 
 
 VectorizingPipelineParamsSchema = class_schema(VectorizingPipelineParams)

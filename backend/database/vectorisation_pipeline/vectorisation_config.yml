@@ -24,3 +24,6 @@ plot_params:
   umap_metric: "cosine"
   umap_n_components: 2
   umap_min_dist: 0.01
+
+author_embeddings_params:
+  batch_size: 10000

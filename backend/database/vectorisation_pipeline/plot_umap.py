@@ -1,12 +1,14 @@
+import os
+import random
+
 import bokeh.models as bm
 import bokeh.plotting as pl
+import click
+import fasttext
 import umap
 from bokeh.io import output_file
-import fasttext
+
 from enities.title_params import read_vectorizing_pipeline_params
-import click
-import random
-import os
 
 
 def draw_vectors(x, y, radius=10, alpha=0.25, color='blue',
@@ -19,6 +21,7 @@ def draw_vectors(x, y, radius=10, alpha=0.25, color='blue',
     fig.scatter('x', 'y', size=radius, color='color', alpha=alpha, source=data_source)
     fig.add_tools(bm.HoverTool(tooltips=[(key, "@" + key) for key in kwargs.keys()]))
     if show: pl.show(fig)
+
     return fig
 
 
@@ -30,8 +33,7 @@ def plot_umap_sample(config_path: str):
     model_path = read_vectorizing_pipeline_params(
         config_path).train_params.model_path
     model = fasttext.load_model(model_path)
-
-    os.makedirs(params.plot_path, exist_ok=True)
+    os.makedirs(params.plot_path.split("/")[0], exist_ok=True)
     output_file(filename=params.plot_path, title="Umap token representations")
     corpus = random.sample(model.get_words(), params.sample_size)
     word_vectors = [model.get_word_vector(word) for word in corpus]
@@ -41,3 +43,7 @@ def plot_umap_sample(config_path: str):
                           min_dist=params.umap_min_dist
                           ).fit_transform(word_vectors)
     draw_vectors(embedding[:, 0], embedding[:, 1], token=corpus)
+
+
+if __name__ == '__main__':
+    plot_umap_sample()

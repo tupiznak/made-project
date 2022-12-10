@@ -16,6 +16,7 @@ class Author(BaseModel):
     oid: str = None
     orgid: str = None
     papers: list[str] = Field(default_factory=lambda: [])
+    vectorized_papers: dict[str, list[float]] = Field(default_factory=lambda: {})
     history: list[HistoryObject] = Field(default_factory=lambda: [])
 
     def __hash__(self):
