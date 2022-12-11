@@ -1,0 +1,29 @@
+stages:
+  make_corpus:
+    cmd: python make_corpus.py vectorisation_config.yml
+    deps:
+      - vectorisation_config.yml
+      - make_corpus.py
+    outs:
+      - corpus/corpus.txt
+
+  train_vectorizer:
+    cmd: python train.py vectorisation_config.yml
+    deps:
+      - corpus/corpus.txt
+      - vectorisation_config.yml
+      - train.py
+    outs:
+      - models/fasttext_vectorizer.bin
+
+  plot_umap:
+    cmd: python plot_umap.py vectorisation_config.yml
+    deps:
+      - models/fasttext_vectorizer.bin
+    outs:
+      - plots/umap_plot.html
+
+  make_author_embeddings:
+    cmd: python set_author_embeddings.py vectorisation_config.yml
+    deps:
+      - models/fasttext_vectorizer.bin

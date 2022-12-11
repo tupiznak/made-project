@@ -21,6 +21,20 @@ class HistoryObject(EmbeddedDocument):
                    description=paper_id)
 
 
+class PaperEmbedding(EmbeddedDocument):
+    paper_id = StringField()
+    paper_vector = ListField(FloatField())
+
+    def to_python(self, *args):
+        return {}
+
+    def _validate(self, *args):
+        return True
+
+    def _to_mongo_safe_call(self, *args):
+        return self.paper_vector
+
+
 class Author(Document):
     _id = StringField()
     name = StringField()
@@ -30,6 +44,7 @@ class Author(Document):
     orgid = StringField()
     h_index = IntField()
     papers = ListField(StringField())
+    vectorized_papers = DictField(PaperEmbedding())
     history = EmbeddedDocumentListField(HistoryObject)  # list of paper id's
 
     meta = {'strict': False, 'db_alias': 'citations'}
