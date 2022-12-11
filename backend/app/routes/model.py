@@ -15,7 +15,7 @@ model = fasttext.load_model("database/vectorisation_pipeline/models/fasttext_vec
 @model_router.post("/predict_by_author", tags=['model'])
 def model_request(_id: str, coauthors_count: int = 10) -> list[str]:
     client = QdrantClient(host="qdrant", port=6333)
-    author = author_operations.get_by_id(_id)
+    author = author_operations.filter(dict(_id=_id))[0]
     author_vector = [0.0] * VECTOR_LENGTH
     if len(author.vectorized_papers) > 0:
         author_vector = np.mean(list(author.vectorized_papers.values()), axis=0, dtype=float).tolist()

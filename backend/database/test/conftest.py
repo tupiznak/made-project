@@ -127,7 +127,8 @@ def some_authors_papers_data(author_operations, paper_operations):
     # АВТОРЫ
     author_1 = author_operations.create(Author(_id='id1', name='Nikolay Lobachevsky',
                                                org='Lebedev Physical Institute',
-                                               papers=['pid1', 'pid2', 'pid3', 'pid4', 'pid5']))
+                                               papers=['pid1', 'pid2', 'pid3', 'pid4', 'pid5'],
+                                               vectorized_papers={'a': [1, 2, 3]}))
     author_2 = author_operations.create(Author(_id='id2', name='Pafnuty Chebyshev',
                                                org='St Petersburg University',
                                                gid='gid2', oid='123', papers=['pid3', 'pid1', 'pid5']))

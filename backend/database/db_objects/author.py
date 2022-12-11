@@ -25,6 +25,15 @@ class PaperEmbedding(EmbeddedDocument):
     paper_id = StringField()
     paper_vector = ListField(FloatField())
 
+    def to_python(self, *args):
+        return {}
+
+    def _validate(self, *args):
+        return True
+
+    def _to_mongo_safe_call(self, *args):
+        return self.paper_vector
+
 
 class Author(Document):
     _id = StringField()

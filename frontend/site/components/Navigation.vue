@@ -39,6 +39,7 @@ export default {
         { title: 'Home', path: '/' },
         { title: 'Dashboard', path: '/dashboard' },
         { title: 'Analytics', path: '/analytics' },
+        { title: 'Predict', path: '/predict' },
       ],
       authItems: [
         { title: 'Sign In', path: '/login' },
