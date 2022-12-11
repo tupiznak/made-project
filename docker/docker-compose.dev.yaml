@@ -27,6 +27,15 @@ services:
     volumes:
       - ${PWD}/../logs/prometheus.yml:/etc/prometheus/prometheus.yml
 
+  qdrant:
+    image: qdrant/qdrant:v0.11.5
+    hostname: qdrant
+    container_name: qdrant
+    networks:
+      - workspace
+    expose:
+      - 6333
+
 volumes:
   made22t4-database:
     external: true

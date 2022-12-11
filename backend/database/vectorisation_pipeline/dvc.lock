@@ -1,0 +1,43 @@
+schema: '2.0'
+stages:
+  make_corpus:
+    cmd: python make_corpus.py vectorisation_config.yml
+    deps:
+    - path: make_corpus.py
+      md5: 58d7a82537c11ae22859b2bd8dec8d93
+      size: 1781
+    - path: vectorisation_config.yml
+      md5: d6735d966c437f4439022aaf683b3fc4
+      size: 728
+    outs:
+    - path: corpus/corpus.txt
+      md5: cafa477b0e53577962233c8c3df96aba
+      size: 6058519
+  train_vectorizer:
+    cmd: python train.py vectorisation_config.yml
+    deps:
+    - path: corpus/corpus.txt
+      md5: cafa477b0e53577962233c8c3df96aba
+      size: 6058519
+    - path: train.py
+      md5: 2785a98771e50c116c53df436c0c5a73
+      size: 1018
+    - path: vectorisation_config.yml
+      md5: d6735d966c437f4439022aaf683b3fc4
+      size: 728
+    outs:
+    - path: models/fasttext_vectorizer.bin
+      md5: 539dbc5ba767e53ec0e978e82ad25c2d
+      size: 808584105
+  make_author_embeddings:
+    cmd: python
+  plot_umap:
+    cmd: python plot_umap.py vectorisation_config.yml
+    deps:
+    - path: models/fasttext_vectorizer.bin
+      md5: 539dbc5ba767e53ec0e978e82ad25c2d
+      size: 808584105
+    outs:
+    - path: plots/umap_plot.html
+      md5: f69aeeb5d45a0fe56d36c476e8174a0a
+      size: 296100
